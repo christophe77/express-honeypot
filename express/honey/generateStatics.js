@@ -2,9 +2,6 @@ const pages = require("./pages");
 const config = require("../config");
 
 function sitemapXml() {
-  const structureStart =
-    '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-  const structureEnd = "</urlset>";
   const urls = [];
   const dateMod = new Date();
   pages.map((page) =>
@@ -15,10 +12,16 @@ function sitemapXml() {
       </url>`
     )
   );
-  return `${structureStart}${urls.join("\n")}${structureEnd}`;
+  const structure = 
+    `<?xml version="1.0" encoding="UTF-8"?>
+      <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+      ${urls.join("\n")}
+      </urlset>
+      `
+  return structure;
 }
 function indexHtml() {
-  const urls = [];
+  const urls = ['<li><a href="sitemap.xml">sitemap</a></li>'];
   pages.map((page) =>
     urls.push(`<li><a href="${page.url}">${page.metas.title}</a></li>`)
   );
@@ -28,7 +31,7 @@ function indexHtml() {
           <title>Beeeeee 🐝</title>
         </head>
         <body>
-        <h1>Sitemap</h1>
+        <h1>tchhhhh !</h1>
         <ul>
           ${urls.join("\n")}
         </ul>
