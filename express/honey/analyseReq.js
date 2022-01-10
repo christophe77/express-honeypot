@@ -46,7 +46,5 @@ function analyseReq(req) {
     checkAndSave(evil);
   }
 }
-const beekeper = {
-  analyseReq,
-};
-module.exports = beekeper;
+
+module.exports = analyseReq;
