@@ -6,11 +6,11 @@ const beekeper = require("./beekeeper");
 const htmlTemplate = require("./honey/htmlTemplate");
 const pages = require("./honey/pages");
 const generateSitemap = require("./honey/generateSitemap");
-
+const config = require("./config")
 const app = express();
 
 app.use(cors());
-app.set("port", process.env.PORT || 3001);
+app.set("port", config.PORT);
 
 app.get("/", (req, res) => {
   res.send("Express honeypot 🐝");

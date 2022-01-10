@@ -125,11 +125,6 @@ const pages = [
     content: "/web/?page= /?pagedb=?",
   },
   {
-    url: "/web/?page=",
-    metas: { title: "ArticleBeach", description: "ArticleBeach" },
-    content: "/web/?page= ArticleBeach",
-  },
-  {
     url: "/tools/send_reminders.php?noSet=0&includedir=",
     metas: {
       title: "includes/php-dbi.php",
