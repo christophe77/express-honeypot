@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", function () {
   const elems = document.querySelectorAll(".collapsible");
   const instances = M.Collapsible.init(elems, { accordion: false });
   getDatas();
@@ -24,7 +24,7 @@ function displayResults(results) {
   getResultsElm.innerHTML = html;
 }
 
-async function getDatas() {
+function getDatas() {
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function () {
     if (xhr.readyState !== 4) return;
