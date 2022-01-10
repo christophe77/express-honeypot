@@ -5,20 +5,20 @@ const cors = require("cors");
 const beekeper = require("./beekeeper");
 const htmlTemplate = require("./honey/htmlTemplate");
 const pages = require("./honey/pages");
-const generateSitemap = require("./honey/generateSitemap");
-const config = require("./config")
+const generateStatics = require("./honey/generateStatics");
+const config = require("./config");
 const app = express();
 
 app.use(cors());
 app.set("port", config.PORT);
 
 app.get("/", (req, res) => {
-  res.send("Express honeypot 🐝");
+  res.send(generateStatics.indexHtml());
 });
 
 app.get("/sitemap.xml", async (req, res, next) => {
   res.set("Content-Type", "text/xml");
-  res.send(generateSitemap());
+  res.send(generateStatics.sitemapXml());
 });
 
 app.get("/*", (req, res) => {
