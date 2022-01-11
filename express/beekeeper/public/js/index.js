@@ -15,7 +15,7 @@ function displayDetails(details) {
           </div>
           <div class="collapsible-body">
             <span>${detail.url}</span>
-              <p>${detail.ip}</p>
+            <p>${JSON.stringify(detail.headers)}</p>
           </div>
         </li>`;
     html += result;

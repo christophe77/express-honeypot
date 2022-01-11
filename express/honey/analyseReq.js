@@ -42,9 +42,9 @@ function checkFileInclusion(url) {
 }
 function analyseReq(req) {
   if (req.url.includes("http") || req.url.includes("www")) {
-    const { url, ip } = req;
+    const { url, headers } = req;
     const fileInclusion = checkFileInclusion(url);
-    const evil = { id: timestamp, url, ip, fileInclusion };
+    const evil = { id: timestamp, url, fileInclusion, headers };
     checkAndSave(evil);
   }
 }
