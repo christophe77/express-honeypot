@@ -1,4 +1,3 @@
-const { GOOGLE_IMG_SCRAP, GOOGLE_QUERY } = require("google-img-scrap");
 const alphabee = [
   "zaa",
   "bee",

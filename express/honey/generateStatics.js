@@ -28,10 +28,11 @@ function indexHtml() {
     <html>
         <head>
           <title>Beeeeee 🐝</title>
-          <meta name="google-site-verification" content="SUVG0hSY3WwCI3Hvgu1eKU6D0aZTnCaMBITeX-3HNIE" />
+          <meta name="google-site-verification" content="${config.GOOGLE_VERIFICATION}" />
         </head>
         <body>
         <h1>tchhhhh !</h1>
+        <p>Welcome to express honeypot, the best place to learn the bee language.</p>
         <ul>
           ${urls.join("\n")}
         </ul>
