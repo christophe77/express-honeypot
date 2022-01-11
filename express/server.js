@@ -24,7 +24,7 @@ app.get("/sitemap.xml", async (req, res, next) => {
 app.get("/*", (req, res) => {
   const honeyPage = pages.find((page) => req.url === page.url);
   analyseReq(req);
-  res.send(honeyPage ? htmlTemplate(honeyPage) : req.url);
+  res.send(htmlTemplate(honeyPage, req.url));
 });
 
 app.use(express.static(__dirname + "/beekeeper/public"));
