@@ -21,14 +21,15 @@ app.get("/sitemap.xml", async (req, res, next) => {
   res.set("Content-Type", "text/xml");
   res.send(generateStatics.sitemapXml());
 });
+
+app.use(express.static(__dirname + "/beekeeper/public"));
+app.use("/beekeeper", beekeeperRouter);
+
 app.get("/*", (req, res) => {
   const honeyPage = pages.find((page) => req.url === page.url);
   analyseReq(req);
   res.send(htmlTemplate(honeyPage, req.url));
 });
-
-app.use(express.static(__dirname + "/beekeeper/public"));
-app.use("/beekeeper", beekeeperRouter);
 
 app.listen(app.get("port"), () => {
   console.log("listening");
