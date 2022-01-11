@@ -19,9 +19,6 @@ app.use("/beekeeper", beekeeperRouter);
 app.get("/", (req, res) => {
   res.send(generateStatics.indexHtml());
 });
-app.get("/google91e0bbd11cc57bc9.html", (req, res) => {
-  res.send("google-site-verification: google91e0bbd11cc57bc9.html");
-});
 app.get("/sitemap.xml", async (req, res, next) => {
   res.set("Content-Type", "text/xml");
   res.send(generateStatics.sitemapXml());
