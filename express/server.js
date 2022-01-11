@@ -13,8 +13,6 @@ const app = express();
 app.set("port", config.PORT);
 
 app.use(cors());
-app.use(express.static(__dirname + "/beekeeper/public"));
-app.use("/beekeeper", beekeeperRouter);
 
 app.get("/", (req, res) => {
   res.send(generateStatics.indexHtml());
@@ -28,6 +26,9 @@ app.get("/*", (req, res) => {
   analyseReq(req);
   res.send(honeyPage ? htmlTemplate(honeyPage) : req.url);
 });
+
+app.use(express.static(__dirname + "/beekeeper/public"));
+app.use("/beekeeper", beekeeperRouter);
 
 app.listen(app.get("port"), () => {
   console.log("listening");
