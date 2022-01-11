@@ -11,6 +11,7 @@ const beekeeperRouter = require("./beekeeper/router");
 const app = express();
 
 app.set("port", config.PORT);
+app.set('trust proxy', true);
 
 app.use(cors());
 
