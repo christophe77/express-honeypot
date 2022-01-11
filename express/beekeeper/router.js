@@ -7,7 +7,7 @@ beekeeperRouter.get("/", function (req, res) {
 });
 
 beekeeperRouter.get("/darts", function (req, res) {
-  res.send(beekeeperController.getDatas());
+  res.send(beekeeperController.getDarts());
 });
 
 module.exports = beekeeperRouter;
