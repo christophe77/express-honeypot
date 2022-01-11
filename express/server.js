@@ -7,7 +7,7 @@ const htmlTemplate = require("./honey/htmlTemplate");
 const pages = require("./honey/pages");
 const generateStatics = require("./honey/generateStatics");
 const config = require("./config");
-const beekeeperRouter = require("./beekeeper/router")
+const beekeeperRouter = require("./beekeeper/router");
 const app = express();
 
 app.use(cors());
@@ -21,8 +21,8 @@ app.get("/sitemap.xml", async (req, res, next) => {
   res.set("Content-Type", "text/xml");
   res.send(generateStatics.sitemapXml());
 });
-app.use(express.static(__dirname + '/beekeeper/public'));
-app.use('/beekeeper', beekeeperRouter);
+app.use(express.static(__dirname + "/beekeeper/public"));
+app.use("/beekeeper", beekeeperRouter);
 
 app.get("/*", (req, res) => {
   const honeyPage = pages.find((page) => req.url === page.url);
