@@ -28,7 +28,9 @@ function indexHtml() {
     <html>
         <head>
           <title>Beeeeee 🐝</title>
-          <meta name="google-site-verification" content="${config.GOOGLE_VERIFICATION}" />
+          <meta name="google-site-verification" content="${
+            config.GOOGLE_VERIFICATION
+          }" />
         </head>
         <body>
         <h1>tchhhhh !</h1>

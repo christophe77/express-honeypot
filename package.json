@@ -10,10 +10,17 @@
     "express": "^4.17.2"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "eslint": "^8.6.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.1"
   },
   "scripts": {
     "dev": "nodemon ./express/server.js",
-    "start": "node ./express/server.js"
+    "start": "node ./express/server.js",
+    "lint": "eslint . --ext .js --fix"
   }
 }

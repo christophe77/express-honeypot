@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const generateResults = () => {
-  const hivePath = path.join(__dirname, "../../hive")
+  const hivePath = path.join(__dirname, "../../hive");
   const darts = [];
 
   const jsonsInDir = fs
@@ -12,8 +12,8 @@ const generateResults = () => {
   jsonsInDir.forEach((file) => {
     const dart = {
       date: path.parse(file).name,
-      datas: []
-    }
+      datas: [],
+    };
     const dartData = fs.readFileSync(path.join(hivePath, file));
     const dartDataJson = JSON.parse(dartData.toString());
     dart.datas = dartDataJson.datas;
@@ -26,7 +26,7 @@ function getDarts() {
   const darts = generateResults();
   return darts;
 }
-beekeeperController = {
+const beekeeperController = {
   getDarts,
 };
 module.exports = beekeeperController;
