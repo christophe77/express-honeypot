@@ -12,6 +12,7 @@ async function writeFile(jsonContent) {
     }
   );
 }
+
 function checkAndSave(evil) {
   try {
     if (fs.existsSync(filePath)) {
@@ -41,9 +42,9 @@ function checkFileInclusion(url) {
 }
 function analyseReq(req) {
   if (req.url.includes("http") || req.url.includes("www")) {
-    const { url, headers } = req;
+    const { url, ip } = req;
     const fileInclusion = checkFileInclusion(url);
-    const evil = { id: timestamp, url, fileInclusion, headers };
+    const evil = { id: timestamp, url, ip, fileInclusion };
     checkAndSave(evil);
   }
 }
