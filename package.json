@@ -13,6 +13,7 @@
     "nodemon": "^2.0.15"
   },
   "scripts": {
-    "start": "nodemon ./express/server.js"
+    "dev": "nodemon ./express/server.js",
+    "start": "node ./express/server.js"
   }
 }

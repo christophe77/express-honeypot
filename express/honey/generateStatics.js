@@ -7,17 +7,16 @@ function sitemapXml() {
   pages.map((page) =>
     urls.push(
       `<url>
-        <loc>${config.HOST}${page.url}</loc>
+        <loc><![CDATA[${config.HOST}${page.url}]]></loc>
         <lastmod>${dateMod.toISOString().split("T")[0]}</lastmod>
       </url>`
     )
   );
-  const structure = 
-    `<?xml version="1.0" encoding="UTF-8"?>
+  const structure = `<?xml version="1.0" encoding="UTF-8"?>
       <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       ${urls.join("\n")}
       </urlset>
-      `
+      `;
   return structure;
 }
 function indexHtml() {
