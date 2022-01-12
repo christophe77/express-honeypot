@@ -19,7 +19,7 @@ function displayDetails(details) {
             <i class="material-icons">offline_bolt</i>
               ${detail.fileInclusion}
           </div>
-          <div class="collapsible-body">
+          <div class="collapsible-body" style="word-wrap: break-word;">
             <b>Request IP : </b><br/>
             <ul style=" padding-left : 10px; 
                         padding-right : 10px;">
@@ -39,8 +39,7 @@ function displayDetails(details) {
               </a><br/>
             <b>Request headers:</b><br/>
             <ul style=" padding-left : 10px; 
-                        padding-right : 10px;
-                        word-wrap: break-word;">
+                        padding-right : 10px;">
               ${listHeaders(detail.headers)}
             </ul>
           </div>
