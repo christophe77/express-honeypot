@@ -26,8 +26,8 @@ Once installed you can start the app with :<br />
 ## How it works when deployed
 
 The app starts a web server, generate a sitemap with known vulnerables paths from phpBB, joomla,....<br />
-When a visitor opens an url and tries to include a remote file, the informations about the request are stored inside a json file in the _/hive_ directory.<br />
-The remote file used for the inclusion is downloaded inside the hive folder with a bee extension _/hive/YYYY-MM-DD/filename.ext.bee_<br />
+When a visitor opens an url and tries to include a remote file, the informations about the request are stored inside a json file in the _/express/hive_ directory.<br />
+The remote file used for the inclusion is downloaded inside the hive folder with a .bee extension _/express/hive/files/YYYY-MM-DD/filename.ext.bee_<br />
 When an url is opened, a fake page is display with some basic html tags, random text and some SEO for google bots.<br />
 If you want your honeypot to be effective you have to add it the google search console.<br />
 When you want to check the logs you have to go to _your-website.com/beekeeper_<br />

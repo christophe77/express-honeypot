@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const generateResults = () => {
-  const hivePath = path.join(__dirname, "../../hive");
+  const hivePath = path.join(__dirname, "../hive/logs");
   const darts = [];
 
   const jsonsInDir = fs

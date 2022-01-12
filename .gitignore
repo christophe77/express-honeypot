@@ -3,8 +3,8 @@ logs
 *.log
 
 # Hive files
-hive/*.json
-hive/*/*.bee
+express/hive/logs/*.json
+express/hive/files/*/*.bee
 
 # Dependency directories
 node_modules/

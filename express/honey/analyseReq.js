@@ -1,10 +1,12 @@
 const fs = require("fs");
+const path = require("path");
 const axios = require("axios");
 const countryFlagEmoji = require("country-flag-emoji");
 
 const timestamp = Date.now() / 1000 || 0;
-const dataFilePath = `./hive/${new Date().toISOString().split("T")[0]}.json`;
-const remoteFileCopyPath = `./hive/${new Date().toISOString().split("T")[0]}/`;
+const today = new Date().toISOString().split("T")[0];
+const dataFilePath = path.join(__dirname, `../hive/logs/${today}.json`);
+const remoteFileCopyPath = path.join(__dirname, `../hive/files/${today}/`);
 
 async function writeFile(jsonContent, filePath) {
   await fs.writeFile(
@@ -43,19 +45,22 @@ function checkFileInclusion(url) {
 }
 
 async function downloadRemoteFile(remoteUrl) {
-  try {
-    const splittedUrl = remoteUrl.split("/");
-    const response = await axios.get(remoteUrl);
-    const fileName = splittedUrl[splittedUrl.length - 1];
-    const fileContent = response.data;
-    if (!fs.existsSync(remoteFileCopyPath)) {
-      fs.mkdirSync(remoteFileCopyPath);
+  if (remoteUrl && remoteUrl !== "") {
+    try {
+      const splittedUrl = remoteUrl.split("/");
+      const response = await axios.get(remoteUrl);
+      const fileName = `${splittedUrl[splittedUrl.length - 1]}.bee`;
+      const fileContent = response.data;
+      if (!fs.existsSync(remoteFileCopyPath)) {
+        fs.mkdirSync(remoteFileCopyPath);
+      }
+      writeFile(fileContent, `${remoteFileCopyPath}\\${fileName}`);
+      return { fileName, pathName: today };
+    } catch (err) {
+      return { fileName: "", pathName: "" };
     }
-    writeFile(fileContent, `${remoteFileCopyPath}\\${fileName}.bee`);
-    return fileName;
-  } catch (err) {
-    return "";
   }
+  return { fileName: "", pathName: "" };
 }
 
 async function getLocation(ip) {
@@ -79,11 +84,17 @@ async function analyseReq(req) {
     const { url, headers } = req;
     const { ip } = req;
     const fileInclusion = checkFileInclusion(url);
-    if (fileInclusion !== "") {
-      downloadRemoteFile(fileInclusion);
-    }
+    const file = await downloadRemoteFile(fileInclusion);
     const location = await getLocation(ip);
-    const evil = { id: timestamp, url, fileInclusion, headers, ip, location };
+    const evil = {
+      id: timestamp,
+      url,
+      fileInclusion,
+      headers,
+      ip,
+      location,
+      file,
+    };
     checkAndSave(evil);
   }
 }

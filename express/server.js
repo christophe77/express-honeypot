@@ -6,6 +6,7 @@ const pages = require("./honey/pages");
 const generateStatics = require("./honey/generateStatics");
 const config = require("./config");
 const beekeeperRouter = require("./beekeeper/router");
+const hiveRouter = require("./hive/router");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.get("/sitemap.xml", async (req, res) => {
 
 app.use(express.static(`${__dirname}/beekeeper/public`));
 app.use("/beekeeper", beekeeperRouter);
+app.use("/hive", hiveRouter);
 
 app.get("/*", (req, res) => {
   const honeyPage = pages.find((page) => req.url === page.url);

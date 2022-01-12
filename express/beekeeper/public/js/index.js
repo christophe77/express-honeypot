@@ -23,13 +23,19 @@ function displayDetails(details) {
             <b>Request IP : </b><br/>
             <ul style=" padding-left : 10px; 
                         padding-right : 10px;">
-                <li>${detail.ip} ${detail.location?.isp  || ""}</li>
-                <li>${detail.location?.countryEmoji || ""} ${detail.location?.country || ""} - ${detail.location?.city || ""}</li>
+                <li>${detail.ip} ${detail.location?.isp || ""}</li>
+                <li>${detail.location?.countryEmoji || ""}
+                    ${detail.location?.country || ""} 
+                    - ${detail.location?.city || ""}</li>
             </ul>
             <b>Request url : </b><span>${detail.url}</span><br/>
             <b>Remote url : </b>
               <a href="${detail.fileInclusion}" target="_blank">
                 ${detail.fileInclusion}
+              </a><br/>
+              <b>Inclusion file : </b>
+              <a href="../hive/?file=${detail.file.fileName}&path=${detail.file.pathName}" target="_blank">
+                ${detail.file.fileName}
               </a><br/>
             <b>Request headers:</b><br/>
             <ul style=" padding-left : 10px; 
