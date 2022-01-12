@@ -41,17 +41,16 @@ async function downloadRemoteFile(remoteUrl) {
     try {
       const splittedUrl = remoteUrl.split("/");
       const response = await axios.get(remoteUrl);
-      const fileName = `${splittedUrl[splittedUrl.length - 1]}.bee`;
+      const fileName = `${splittedUrl[splittedUrl.length - 1].substring(
+        1
+      )}.bee`;
       const fileContent = response.data;
-      console.log(response.data);
       if (!fs.existsSync(remoteFileCopyPath)) {
-        console.log("mkdir");
         fs.mkdirSync(remoteFileCopyPath);
       }
       writeFile(fileContent, `${remoteFileCopyPath}\\${fileName}`);
       return { fileName, pathName: today };
     } catch (err) {
-      console.log(err);
       return { fileName: "", pathName: "" };
     }
   }
