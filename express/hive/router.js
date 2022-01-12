@@ -11,8 +11,9 @@ hiveRouter.get("/*", (req, res) => {
     res.setHeader("Content-type", "text/html");
     const filestream = fs.createReadStream(filePath);
     filestream.pipe(res);
+  } else {
+    res.send("not found");
   }
-  res.send("not found");
 });
 
 module.exports = hiveRouter;
