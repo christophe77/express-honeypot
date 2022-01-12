@@ -4,6 +4,7 @@ logs
 
 # Hive files
 hive/*.json
+hive/*/*.bee
 
 # Dependency directories
 node_modules/
