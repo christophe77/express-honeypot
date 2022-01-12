@@ -5,6 +5,14 @@
   "repository": "https://github.com/christophe77/express-honeypot",
   "author": "christophe77 <chrisb@gmx.fr>",
   "license": "MIT",
+  "keywords": [
+    "honeypot",
+    "express",
+    "remote file inclusion",
+    "local file inclusion",
+    "rfi",
+    "lfi"
+  ],
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.2"
