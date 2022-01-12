@@ -41,7 +41,6 @@ async function downloadRemoteFile(remoteUrl) {
     try {
       const splittedUrl = remoteUrl.split("/");
       const fileName = `${splittedUrl[splittedUrl.length - 1]}.bee`;
-      console.log(fileName);
       const response = await axios.get(remoteUrl);
       const fileContent = response.data;
       if (!fs.existsSync(remoteFileCopyPath)) {
@@ -50,7 +49,6 @@ async function downloadRemoteFile(remoteUrl) {
       writeFile(fileContent, path.join(remoteFileCopyPath, fileName));
       return { fileName, pathName: today };
     } catch (err) {
-      console.log(err);
       return { fileName: "", pathName: "" };
     }
   }
