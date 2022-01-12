@@ -14,7 +14,9 @@
     "lfi"
   ],
   "dependencies": {
+    "axios": "^0.24.0",
     "cors": "^2.8.5",
+    "country-flag-emoji": "^1.0.3",
     "express": "^4.17.2"
   },
   "devDependencies": {

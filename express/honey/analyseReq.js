@@ -1,4 +1,6 @@
 const fs = require("fs");
+const axios = require("axios");
+const countryFlagEmoji = require("country-flag-emoji");
 
 const timestamp = Date.now() / 1000 || 0;
 const filePath = `./hive/${new Date().toISOString().split("T")[0]}.json`;
@@ -13,7 +15,6 @@ async function writeFile(jsonContent) {
     }
   );
 }
-
 function checkAndSave(evil) {
   if (fs.existsSync(filePath)) {
     fs.readFile(filePath, "utf8", (err, data) => {
@@ -35,12 +36,28 @@ function checkFileInclusion(url) {
   const urlInjection = url.match(urlRegex)[0];
   return urlInjection || "";
 }
-function analyseReq(req) {
+async function getLocation(ip) {
+  const URL = `http://ip-api.com/json/${ip}`;
+  const location = { city: "", country: "", countryEmoji: "", isp: "" };
+  try {
+    const response = await axios.get(URL);
+    const countryEmoji = countryFlagEmoji.get(response.data.countryCode);
+    location.city = response.data.city;
+    location.country = response.data.country;
+    location.countryEmoji = countryEmoji.emoji;
+    location.isp = response.data.isp;
+    return location;
+  } catch (err) {
+    return location;
+  }
+}
+async function analyseReq(req) {
   if (req.url.includes("http") || req.url.includes("www")) {
     const { url, headers } = req;
     const { ip } = req;
     const fileInclusion = checkFileInclusion(url);
-    const evil = { id: timestamp, url, fileInclusion, headers, ip };
+    const location = await getLocation(ip);
+    const evil = { id: timestamp, url, fileInclusion, headers, ip, location };
     checkAndSave(evil);
   }
 }

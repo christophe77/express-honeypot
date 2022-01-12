@@ -20,15 +20,20 @@ function displayDetails(details) {
               ${detail.fileInclusion}
           </div>
           <div class="collapsible-body">
-            <b>Request IP : </b><span>${detail.ip}</span><br/>
+            <b>Request IP : </b><br/>
+            <ul style=" padding-left : 10px; 
+                        padding-right : 10px;">
+                <li>${detail.ip} ${detail.location?.isp  || ""}</li>
+                <li>${detail.location?.countryEmoji || ""} ${detail.location?.country || ""} - ${detail.location?.city || ""}</li>
+            </ul>
             <b>Request url : </b><span>${detail.url}</span><br/>
             <b>Remote url : </b>
               <a href="${detail.fileInclusion}" target="_blank">
                 ${detail.fileInclusion}
               </a><br/>
             <b>Request headers:</b><br/>
-            <ul style=" padding-left : 5px; 
-                        padding-right : 5px;
+            <ul style=" padding-left : 10px; 
+                        padding-right : 10px;
                         word-wrap: break-word;">
               ${listHeaders(detail.headers)}
             </ul>
