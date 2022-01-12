@@ -28,16 +28,16 @@ const alphabee = [
 ];
 function createWord(length) {
   let word = "";
-  for (let i = 0; i < length; i++) {
+  for (let i = 0; i < length; i += 1) {
     word += alphabee[Math.floor(Math.random() * alphabee.length)];
   }
   return word;
 }
 function createSentence(length) {
   let words = "";
-  for (let i = 0; i < length; i++) {
+  for (let i = 0; i < length; i += 1) {
     if (i === 0) {
-      let word = `${createWord(Math.floor(Math.random() * 5))} `;
+      const word = `${createWord(Math.floor(Math.random() * 5))} `;
       words += word.charAt(0).toUpperCase() + word.slice(1);
     } else if (i === length - 1) {
       words += `${createWord(Math.floor(Math.random() * 5))}.`;
@@ -49,14 +49,14 @@ function createSentence(length) {
 }
 function createParagraph(length) {
   let paragraph = "";
-  for (let i = 0; i < Math.floor(Math.random() * 25); i++) {
+  for (let i = 0; i < length; i += 1) {
     paragraph += `${createSentence(Math.floor(Math.random() * 25))}<br />`;
   }
   return paragraph;
 }
 function generateBeeText() {
   let text = "";
-  for (let i = 0; i < Math.floor(Math.random() * 25); i++) {
+  for (let i = 0; i < Math.floor(Math.random() * 25); i += 1) {
     text += `<p>${createParagraph(Math.floor(Math.random() * 25))}</p>`;
   }
   return text;

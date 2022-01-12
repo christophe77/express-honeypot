@@ -1,6 +1,6 @@
 function collapsible() {
   const elems = document.querySelectorAll(".collapsible");
-  const instances = M.Collapsible.init(elems, { accordion: false });
+  M.Collapsible.init(elems, { accordion: false });
 }
 function listHeaders(headers) {
   let list = "";
@@ -64,12 +64,11 @@ function displayResults(results) {
 }
 
 function getDatas() {
-  var xhr = new XMLHttpRequest();
+  const xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function () {
     if (xhr.readyState !== 4) return;
     if (xhr.status >= 200 && xhr.status < 300) {
       const results = JSON.parse(xhr.responseText);
-      console.log();
       displayResults(results);
     }
   };
@@ -77,6 +76,6 @@ function getDatas() {
   xhr.send();
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
   getDatas();
 });

@@ -1,5 +1,3 @@
-"use strict";
-const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const analyseReq = require("./honey/analyseReq");
@@ -8,22 +6,23 @@ const pages = require("./honey/pages");
 const generateStatics = require("./honey/generateStatics");
 const config = require("./config");
 const beekeeperRouter = require("./beekeeper/router");
+
 const app = express();
 
 app.set("port", config.PORT);
-app.set('trust proxy', true);
+app.set("trust proxy", true);
 
 app.use(cors());
 
 app.get("/", (req, res) => {
   res.send(generateStatics.indexHtml());
 });
-app.get("/sitemap.xml", async (req, res, next) => {
+app.get("/sitemap.xml", async (req, res) => {
   res.set("Content-Type", "text/xml");
   res.send(generateStatics.sitemapXml());
 });
 
-app.use(express.static(__dirname + "/beekeeper/public"));
+app.use(express.static(`${__dirname}/beekeeper/public`));
 app.use("/beekeeper", beekeeperRouter);
 
 app.get("/*", (req, res) => {
@@ -33,5 +32,5 @@ app.get("/*", (req, res) => {
 });
 
 app.listen(app.get("port"), () => {
-  console.log("listening");
+  // console.log("listening");
 });
