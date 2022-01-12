@@ -18,6 +18,9 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.send(generateStatics.indexHtml());
 });
+app.get("/robots.txt", (req, res) => {
+  res.send(`User-agent: * \r\n Disallow: /hive/`);
+});
 app.get("/sitemap.xml", async (req, res) => {
   res.set("Content-Type", "text/xml");
   res.send(generateStatics.sitemapXml());
