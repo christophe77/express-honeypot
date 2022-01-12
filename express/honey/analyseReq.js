@@ -36,14 +36,6 @@ function checkAndSave(newDatas) {
   }
 }
 
-function checkFileInclusion(url) {
-  const expression =
-    /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
-  const urlRegex = new RegExp(expression);
-  const urlInjection = url.match(urlRegex)[0];
-  return urlInjection || "";
-}
-
 async function downloadRemoteFile(remoteUrl) {
   if (remoteUrl && remoteUrl !== "") {
     try {
@@ -53,8 +45,11 @@ async function downloadRemoteFile(remoteUrl) {
       const fileContent = response.data;
       if (!fs.existsSync(remoteFileCopyPath)) {
         fs.mkdirSync(remoteFileCopyPath);
+        writeFile(fileContent, `${remoteFileCopyPath}\\${fileName}`);
+      } else {
+        writeFile(fileContent, `${remoteFileCopyPath}\\${fileName}`);
       }
-      writeFile(fileContent, `${remoteFileCopyPath}\\${fileName}`);
+
       return { fileName, pathName: today };
     } catch (err) {
       return { fileName: "", pathName: "" };
@@ -77,6 +72,14 @@ async function getLocation(ip) {
   } catch (err) {
     return location;
   }
+}
+
+function checkFileInclusion(url) {
+  const expression =
+    /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+  const urlRegex = new RegExp(expression);
+  const urlInjection = url.match(urlRegex)[0];
+  return urlInjection || "";
 }
 
 async function analyseReq(req) {
