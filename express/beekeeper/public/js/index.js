@@ -49,16 +49,33 @@ function displayDetails(details) {
   getDetailsElm.innerHTML = html;
   collapsible();
 }
+function deleteLog(date){
+  const xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status >= 200 && xhr.status < 300) {
+      const results = JSON.parse(xhr.responseText);
+      if(results?.deleted === true){
+        getDatas();
+      }
+    }
+  };
+  xhr.open("GET", `./beekeeper/d/log/${date}`);
+  xhr.send();
+}
 function displayResults(results) {
   const getResultsElm = document.getElementById("results");
-  let html = "";
+  let html = '';
   results.forEach((darts) => {
-    const result = `
+    const result = ` 
         <li>
-          <div class="collapsible-header">
+          <div class="collapsible-header" style="display: block;">
             <i class="material-icons">keyboard_arrow_down</i>
             ${darts.date}
-          </div>
+            <div class="right">
+              <i class="material-icons" onclick="deleteLog('${darts.date}')">delete</i>
+            </div>
+          </div> 
           <div class="collapsible-body">
             <ul class="collapsible" id="details-${darts.date}">
             </ul>

@@ -2,22 +2,12 @@ const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
 const countryFlagEmoji = require("country-flag-emoji");
+const utils = require("../utils");
 
 const timestamp = Date.now() / 1000 || 0;
 const today = new Date().toISOString().split("T")[0];
 const dataFilePath = path.join(__dirname, `../hive/logs/${today}.json`);
 const remoteFileCopyPath = path.join(__dirname, `../hive/files/${today}/`);
-
-async function writeFile(jsonContent, filePath) {
-  await fs.writeFile(
-    filePath,
-    JSON.stringify(jsonContent),
-    { flag: "w" },
-    (err) => {
-      if (err) throw err;
-    }
-  );
-}
 
 function checkAndSave(newDatas) {
   if (fs.existsSync(dataFilePath)) {
@@ -28,11 +18,11 @@ function checkAndSave(newDatas) {
         newJsonContent.datas.filter((e) => e.url === newDatas.url).length === 0
       ) {
         newJsonContent.datas.push(newDatas);
-        writeFile(newJsonContent, dataFilePath);
+        utils.writeFileAsync(newJsonContent, dataFilePath);
       }
     });
   } else {
-    writeFile({ datas: [newDatas] }, dataFilePath);
+    utils.writeFileAsync({ datas: [newDatas] }, dataFilePath);
   }
 }
 
@@ -46,7 +36,10 @@ async function downloadRemoteFile(remoteUrl) {
       if (!fs.existsSync(remoteFileCopyPath)) {
         fs.mkdirSync(remoteFileCopyPath);
       }
-      writeFile(fileContent, path.join(remoteFileCopyPath, fileName));
+      utils.writeFileAsync(
+        fileContent,
+        path.join(remoteFileCopyPath, fileName)
+      );
       return { fileName, pathName: today };
     } catch (err) {
       return { fileName: "", pathName: "" };

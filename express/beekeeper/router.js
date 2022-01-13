@@ -11,4 +11,9 @@ beekeeperRouter.get("/darts", (req, res) => {
   res.send(beekeeperController.getDarts());
 });
 
+beekeeperRouter.get("/d/log/:date", (req, res) => {
+  const { date } = req.params;
+  res.send(beekeeperController.deleteDayLog(date));
+});
+
 module.exports = beekeeperRouter;
