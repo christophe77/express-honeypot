@@ -2,9 +2,12 @@
 
 Express honeypot is a honeypot for remote file inclusion (RFI) and local file inclusion (LFI).<br />
 The aim of this project is to catch bots and malwares that are scanning websites and try to upload remote files.<br />
+Those RFI / LFI bots use a list of google dorks in order to search the web for vulnerable website.<br />
+Express honeypot uses 310 fake urls based on RFI LFI dorks and serves them dynamicaly.<br />
+Every request to any of the honeypot urls is logged and the remote file is downloaded and safely stored.<br />
 This honeypot is written in javascript and uses express as web server.<br />
 A light logs viewer page is available at /beekeeper but it needs to have an authentication and more commands.<br />
-Developement is still in progress.<br />
+Developement is still in progress but the core architecture won't change so you are safe to start using it.<br />
 
 ## How to use
 
