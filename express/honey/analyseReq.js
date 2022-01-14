@@ -1,52 +1,9 @@
-const fs = require("fs");
-const path = require("path");
 const axios = require("axios");
 const countryFlagEmoji = require("country-flag-emoji");
-const utils = require("../utils");
+const reportMaker = require("./reportMaker");
+const config = require("../config");
 
 const timestamp = Date.now() / 1000 || 0;
-const today = new Date().toISOString().split("T")[0];
-const dataFilePath = path.join(__dirname, `../hive/logs/${today}.json`);
-const remoteFileCopyPath = path.join(__dirname, `../hive/files/${today}/`);
-
-function checkAndSave(newDatas) {
-  if (fs.existsSync(dataFilePath)) {
-    fs.readFile(dataFilePath, "utf8", (err, data) => {
-      if (err) throw err;
-      const newJsonContent = JSON.parse(data);
-      if (
-        newJsonContent.datas.filter((e) => e.url === newDatas.url).length === 0
-      ) {
-        newJsonContent.datas.push(newDatas);
-        utils.writeFileAsync(newJsonContent, dataFilePath);
-      }
-    });
-  } else {
-    utils.writeFileAsync({ datas: [newDatas] }, dataFilePath);
-  }
-}
-
-async function downloadRemoteFile(remoteUrl) {
-  if (remoteUrl && remoteUrl !== "") {
-    try {
-      const splittedUrl = remoteUrl.split("/");
-      const fileName = `${splittedUrl[splittedUrl.length - 1]}.bee`;
-      const response = await axios.get(remoteUrl);
-      const fileContent = response.data;
-      if (!fs.existsSync(remoteFileCopyPath)) {
-        fs.mkdirSync(remoteFileCopyPath);
-      }
-      utils.writeFileAsync(
-        fileContent,
-        path.join(remoteFileCopyPath, fileName)
-      );
-      return { fileName, pathName: today };
-    } catch (err) {
-      return { fileName: "", pathName: "" };
-    }
-  }
-  return { fileName: "", pathName: "" };
-}
 
 async function getLocation(ip) {
   const url = `http://ip-api.com/json/${ip}`;
@@ -74,21 +31,23 @@ function checkFileInclusion(url) {
 
 async function analyseReq(req) {
   if (req.url.includes("http") || req.url.includes("www")) {
-    const { url, headers } = req;
-    const { ip } = req;
+    const { url, headers, ip } = req;
     const fileInclusion = checkFileInclusion(url);
-    const file = await downloadRemoteFile(fileInclusion);
+
     const location = await getLocation(ip);
-    const evil = {
+    const reportDatas = {
       id: timestamp,
       url,
       fileInclusion,
       headers,
       ip,
       location,
-      file,
     };
-    checkAndSave(evil);
+    if (config.DPASTE_REPORT) {
+      reportMaker.generateDPasteReport(reportDatas);
+    } else {
+      reportMaker.generateLocalReport(reportDatas);
+    }
   }
 }
 

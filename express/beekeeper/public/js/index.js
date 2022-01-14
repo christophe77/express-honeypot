@@ -13,49 +13,63 @@ function displayDetails(details) {
   const getDetailsElm = document.getElementById(`details-${details.date}`);
   let html = "";
   details.datas.forEach((detail) => {
-    const result = `
-        <li>
-          <div class="collapsible-header">
-            <i class="material-icons">offline_bolt</i>
+    let result = "";
+    if (detail.dpaste) {
+      result = `
+      <li>
+        <div style="padding:5px;">
+          <b>Request url : </b><span>${detail.url}</span><br/>
+          <b>Report url : </b><a href="${detail.dpaste}" target="_blank">${detail.dpaste}</a><br/>
+        </div>
+      </li>`;
+    } else {
+      result = `
+      <li>
+        <div class="collapsible-header">
+          <i class="material-icons">offline_bolt</i>
+            ${detail.fileInclusion}
+        </div>
+        <div class="collapsible-body" style="word-wrap: break-word;">
+          <b>Request IP : </b><br/>
+          <ul style=" padding-left : 10px; 
+                      padding-right : 10px;">
+              <li>${detail.ip} ${detail.location?.isp || ""}</li>
+              <li>${detail.location?.countryEmoji || ""}
+                  ${detail.location?.country || ""} 
+                  - ${detail.location?.city || ""}</li>
+          </ul>
+          <b>Request url : </b><span>${detail.url}</span><br/>
+          <b>Remote url : </b>
+            <a href="${detail.fileInclusion}" target="_blank">
               ${detail.fileInclusion}
-          </div>
-          <div class="collapsible-body" style="word-wrap: break-word;">
-            <b>Request IP : </b><br/>
-            <ul style=" padding-left : 10px; 
-                        padding-right : 10px;">
-                <li>${detail.ip} ${detail.location?.isp || ""}</li>
-                <li>${detail.location?.countryEmoji || ""}
-                    ${detail.location?.country || ""} 
-                    - ${detail.location?.city || ""}</li>
-            </ul>
-            <b>Request url : </b><span>${detail.url}</span><br/>
-            <b>Remote url : </b>
-              <a href="${detail.fileInclusion}" target="_blank">
-                ${detail.fileInclusion}
-              </a><br/>
-              <b>Inclusion file : </b>
-              <a href="../hive/?file=${detail.file.fileName}&path=${detail.file.pathName}" target="_blank">
-                ${detail.file.fileName}
-              </a><br/>
-            <b>Request headers:</b><br/>
-            <ul style=" padding-left : 10px; 
-                        padding-right : 10px;">
-              ${listHeaders(detail.headers)}
-            </ul>
-          </div>
-        </li>`;
+            </a><br/>
+            <b>Inclusion file : </b>
+            <a href="../hive/?file=${detail.file.fileName}&path=${
+        detail.file.pathName
+      }" target="_blank">
+              ${detail.file.fileName}
+            </a><br/>
+          <b>Request headers:</b><br/>
+          <ul style=" padding-left : 10px; 
+                      padding-right : 10px;">
+            ${listHeaders(detail.headers)}
+          </ul>
+        </div>
+      </li>`;
+    }
+
     html += result;
   });
   getDetailsElm.innerHTML = html;
   collapsible();
 }
-function deleteLog(date){
+function deleteLog(date) {
   const xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function () {
     if (xhr.readyState !== 4) return;
     if (xhr.status >= 200 && xhr.status < 300) {
       const results = JSON.parse(xhr.responseText);
-      if(results?.deleted === true){
+      if (results?.deleted === true) {
         getDatas();
       }
     }
@@ -65,7 +79,7 @@ function deleteLog(date){
 }
 function displayResults(results) {
   const getResultsElm = document.getElementById("results");
-  let html = '';
+  let html = "";
   results.forEach((darts) => {
     const result = ` 
         <li>

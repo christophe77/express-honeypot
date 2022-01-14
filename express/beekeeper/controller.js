@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const utils = require("../utils");
 
 const hiveLogsPath = path.join(__dirname, "../hive/logs");
 const hiveFilesPath = path.join(__dirname, "../hive/files");
@@ -30,12 +29,28 @@ function getDarts() {
   return darts;
 }
 
+function deleteFolderRecursive(thePath) {
+  if (fs.existsSync(thePath)) {
+    fs.readdirSync(thePath).forEach((file) => {
+      const curPath = `${thePath}/${file}`;
+      if (fs.lstatSync(curPath).isDirectory()) {
+        // recurse
+        deleteFolderRecursive(curPath);
+      } else {
+        // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(thePath);
+  }
+}
+
 function deleteDayLog(date) {
   try {
     const logFile = path.join(hiveLogsPath, `${date}.json`);
     const filePath = path.join(hiveFilesPath, date);
     fs.unlinkSync(logFile);
-    utils.deleteFolderRecursive(filePath);
+    deleteFolderRecursive(filePath);
     return { deleted: true };
   } catch (e) {
     return { deleted: false };

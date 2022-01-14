@@ -21,6 +21,8 @@ Edit _/express/config.js_ file.<br />
 _HOST_ is your hosting url. It will be used to generate the sitemap.xml.<br />
 _PORT_ is the port for the web server.<br />
 _GOOGLE_VERIFICATION_ is the key given in google search console to validate your website.<br />
+_DPASTE_REPORT_ set to true if you want to send the reports to dpaste.com.<br />
+If set to true, the remote files won't be downloaded to your local server but a string stream of the file content will be displayed on your dpaste report.<br />
 
 Once installed you can start the app with :<br />
 
