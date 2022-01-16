@@ -1,9 +1,10 @@
 const beeLanguage = require("./beeLanguage");
 
-const htmlTemplate = (page, url) => {
+const htmlTemplate = (page, url, fileContent) => {
   const title = page ? page.metas.title : url;
   const description = page ? page.metas.description : url;
   const content = page ? page.content : url;
+  const remoteFileContent = fileContent || "";
   return `
   <!DOCTYPE html>
   <html lang="bee">
@@ -24,6 +25,9 @@ const htmlTemplate = (page, url) => {
         <h3>${content}</h3>
         <div style="padding:15px;">
           ${beeLanguage.generateBeeText()}
+        </div>
+        <div style="padding:15px;">
+          ${remoteFileContent}
         </div>
       </body>
   </html>`;

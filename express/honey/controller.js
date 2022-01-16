@@ -48,7 +48,11 @@ async function analyseReq(req) {
     } else {
       reportMaker.generateLocalReport(reportDatas);
     }
+    return reportDatas;
   }
+  return {};
 }
-
-module.exports = analyseReq;
+const honeyController = {
+  analyseReq,
+};
+module.exports = honeyController;

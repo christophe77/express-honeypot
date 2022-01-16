@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
+const common = require("./common");
 
 const today = new Date().toISOString().split("T")[0];
 const dataFilePath = path.join(__dirname, `../hive/logs/${today}.json`);
@@ -16,17 +17,13 @@ async function writeFileAsync(jsonContent, filePath) {
     }
   );
 }
-async function getRemoteFileContent(remoteUrl) {
-  const response = await axios.get(remoteUrl);
-  return response.data;
-}
 
 async function downloadRemoteFile(remoteUrl) {
   if (remoteUrl && remoteUrl !== "") {
     try {
       const splittedUrl = remoteUrl.split("/");
       const fileName = `${splittedUrl[splittedUrl.length - 1]}.bee`;
-      const fileContent = await getRemoteFileContent(remoteUrl);
+      const fileContent = await common.getRemoteFileContent(remoteUrl);
 
       if (!fs.existsSync(remoteFileCopyPath)) {
         fs.mkdirSync(remoteFileCopyPath);
@@ -72,7 +69,9 @@ async function generateLocalReport(reportDatas) {
   }
 }
 async function generateDPasteReport(reportDatas) {
-  const fileContent = await getRemoteFileContent(reportDatas.fileInclusion);
+  const fileContent = await common.getRemoteFileContent(
+    reportDatas.fileInclusion
+  );
   const reportDatasCopy = { ...reportDatas };
   reportDatasCopy.fileContent = fileContent;
   const dpasteUrl = await dpaste(JSON.stringify(reportDatasCopy));
