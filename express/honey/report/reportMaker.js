@@ -1,11 +1,11 @@
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
-const common = require("./common");
+const common = require("../common/common");
 
 const today = new Date().toISOString().split("T")[0];
-const dataFilePath = path.join(__dirname, `../hive/logs/${today}.json`);
-const remoteFileCopyPath = path.join(__dirname, `../hive/files/${today}/`);
+const dataFilePath = path.join(__dirname, `../../hive/logs/${today}.json`);
+const remoteFileCopyPath = path.join(__dirname, `../../hive/files/${today}/`);
 
 async function writeFileAsync(jsonContent, filePath) {
   await fs.writeFile(

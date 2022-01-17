@@ -6,6 +6,7 @@
   "author": "christophe77 <chrisb@gmx.fr>",
   "license": "MIT",
   "keywords": [
+    "nodejs",
     "honeypot",
     "express",
     "remote file inclusion",

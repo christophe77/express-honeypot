@@ -1,4 +1,4 @@
-const pages = require("./pages");
+const pages = require("../pages");
 const config = require("../config");
 
 function sitemapXml() {
@@ -42,8 +42,9 @@ function indexHtml() {
     </html>`;
   return structure;
 }
-const generateStatics = {
+
+const seoController = {
   sitemapXml,
   indexHtml,
 };
-module.exports = generateStatics;
+module.exports = seoController;

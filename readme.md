@@ -6,7 +6,7 @@ Those RFI / LFI bots use a list of google dorks in order to search the web for v
 Express honeypot uses 310 fake urls based on RFI LFI dorks and serves them dynamicaly.<br />
 Every request to any of the honeypot urls is logged and the remote file is downloaded and safely stored.<br />
 This honeypot is written in javascript and uses express as web server.<br />
-A light logs viewer page is available at /beekeeper but it needs to have an authentication and more commands.<br />
+A light logs viewer page is available at /beekeeper but I think it needs to have more commands.<br />
 Developement is still in progress but the core architecture won't change so you are safe to start using it.<br />
 
 ## How to use
@@ -18,8 +18,10 @@ Clone the project and install the dependencies :<br />
     yarn install
 
 Edit _/express/config.js_ file.<br />
-_HOST_ is your hosting url. It will be used to generate the sitemap.xml.<br />
 _PORT_ is the port for the web server.<br />
+_HOST_ is your hosting url. It will be used to generate the sitemap.xml.<br />
+_USERNAME_ username to access /beekeeper url.<br />
+_PASSWORD_ password to access /beekeeper url.<br />
 _GOOGLE_VERIFICATION_ is the key given in google search console to validate your website.<br />
 _DPASTE_REPORT_ set to true if you want to send the reports to dpaste.com.<br />
 If set to true, the remote files won't be downloaded to your local server but a string stream of the file content will be displayed on your dpaste report.<br />
@@ -34,9 +36,10 @@ The app starts a web server, generate a sitemap with known vulnerables paths fro
 When a visitor opens an url and tries to include a remote file, the informations about the request are stored inside a json file in the _/express/hive_ directory.<br />
 The remote file used for the inclusion is downloaded inside the hive folder with a .bee extension _/express/hive/files/YYYY-MM-DD/filename.ext.bee_<br />
 When an url is opened, a fake page is display with some basic html tags, random text and some SEO for google bots.<br />
-If you want your honeypot to be effective you have to add it the google search console.<br />
+If the page is opened with a remote file inside the url then the content of the file is added to the response body as if the injection worked.<br /> It's displayed in text and no real injection is posible.<br />
+If you want your honeypot to be effective you need to spread it over search engines.<br /> Google search console is the best option to start.<br />
 When you want to check the logs you have to go to _your-website.com/beekeeper_<br />
 
 ## How to add more fake urls
 
-If you want to add urls you have to open _/express/honey/pages.js_ and add new datas.<br />
+If you want to add urls you have to open _/express/pages.js_ and add new datas.<br />

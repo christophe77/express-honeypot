@@ -1,7 +1,7 @@
 const express = require("express");
-const htmlTemplate = require("./htmlTemplate");
-const pages = require("./pages");
-const common = require("./common");
+const htmlTemplate = require("./display/htmlTemplate");
+const pages = require("../pages");
+const common = require("./common/common");
 const honeyController = require("./controller");
 
 const honeyRouter = express.Router();
