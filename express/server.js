@@ -13,7 +13,7 @@ app.set("trust proxy", true);
 
 app.use(cors());
 app.use("/", seoRouter);
-app.use(express.static(`${__dirname}/beekeeper/public`));
+app.use(express.static(`${__dirname}/views`));
 app.use("/beekeeper", beekeeperRouter);
 app.use("/hive", hiveRouter);
 app.use("/*", honeyRouter);

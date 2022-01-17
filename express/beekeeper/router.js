@@ -1,4 +1,7 @@
 const express = require("express");
+const { dirname } = require("path");
+
+const appDir = dirname(require.main.filename);
 const beekeeperController = require("./controller");
 const config = require("../config");
 
@@ -25,7 +28,7 @@ beekeeperRouter.get("/", (req, res) => {
   if (!(username === config.USERNAME && password === config.PASSWORD)) {
     return reject();
   }
-  return res.sendFile(`${__dirname}/public/index.html`);
+  return res.sendFile(`${appDir}/views/beekeeper/index.html`);
 });
 
 beekeeperRouter.get("/darts", (req, res) => {
