@@ -19,7 +19,6 @@ function displayDetails(details) {
       <li>
         <div style="padding:5px;">
           <b>Request url : </b><span>${detail.url}</span><br/>
-          <b>Report url : </b><a href="${detail.dpaste}" target="_blank">${detail.dpaste}</a><br/>
         </div>
       </li>`;
     } else {
@@ -33,16 +32,19 @@ function displayDetails(details) {
           <b>Request IP : </b><br/>
           <ul style=" padding-left : 10px; 
                       padding-right : 10px;">
-              <li>${detail.ip} ${detail.location?.isp || ""}</li>
-              <li>${detail.location?.countryEmoji || ""}
-                  ${detail.location?.country || ""} 
-                  - ${detail.location?.city || ""}</li>
+              <li>${detail.ip} ${detail.location.isp || ""}</li>
+              <li>${detail.location.countryEmoji || ""}
+                  ${detail.location.country || ""} 
+                  - ${detail.location.city || ""}</li>
           </ul>
           <b>Request url : </b><span>${detail.url}</span><br/>
           <b>Remote url : </b>
             <a href="${detail.fileInclusion}" target="_blank">
               ${detail.fileInclusion}
             </a><br/>
+            <b>Dpaste save url : </b><a href="${
+              detail.reportUrl
+            }" target="_blank">${detail.reportUrl}</a><br/>
             <b>Inclusion file : </b>
             <a href="../hive/?file=${detail.file.fileName}&path=${
         detail.file.pathName
@@ -69,7 +71,7 @@ function deleteLog(date) {
     if (xhr.readyState !== 4) return;
     if (xhr.status >= 200 && xhr.status < 300) {
       const results = JSON.parse(xhr.responseText);
-      if (results?.deleted === true) {
+      if (results.deleted === true) {
         getDatas();
       }
     }
@@ -113,7 +115,7 @@ function getDatas() {
       displayResults(results);
     }
   };
-  xhr.open("GET", "./beekeeper/darts");
+  xhr.open("GET", "/beekeeper/darts");
   xhr.send();
 }
 

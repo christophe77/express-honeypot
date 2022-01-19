@@ -1,3 +1,3 @@
-views/beekeeper/js/**
+express/views/beekeeper/js/*.js
 express/hive/*/**
 node_modules/*/**

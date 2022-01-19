@@ -10,8 +10,9 @@ seoRouter.get("/robots.txt", (req, res) => {
   res.send(`User-agent: * \r\n Disallow: /hive/`);
 });
 seoRouter.get("/sitemap.xml", async (req, res) => {
+  const host = req.get("host");
   res.set("Content-Type", "text/xml");
-  res.send(seoController.sitemapXml());
+  res.send(seoController.sitemapXml(host));
 });
 
 module.exports = seoRouter;

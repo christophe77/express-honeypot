@@ -8,7 +8,7 @@ const seoRouter = require("./seo/router");
 
 const app = express();
 
-app.set("port", config.PORT);
+app.set("port", config.port);
 app.set("trust proxy", true);
 
 app.use(cors());

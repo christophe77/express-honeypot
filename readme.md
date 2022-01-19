@@ -18,13 +18,10 @@ Clone the project and install the dependencies :<br />
     yarn install
 
 Edit _/express/config.js_ file.<br />
-_PORT_ is the port for the web server.<br />
-_HOST_ is your hosting url. It will be used to generate the sitemap.xml.<br />
-_USERNAME_ username to access /beekeeper url.<br />
-_PASSWORD_ password to access /beekeeper url.<br />
-_GOOGLE_VERIFICATION_ is the key given in google search console to validate your website.<br />
-_DPASTE_REPORT_ set to true if you want to send the reports to dpaste.com.<br />
-If set to true, the remote files won't be downloaded to your local server but a string stream of the file content will be displayed on your dpaste report.<br />
+_port_ is the port for the web server.<br />
+_beekeeperCredentials_ username and password to access /beekeeper url.<br />
+_remoteFileSave_ choose to save the remote file on your local drive, on dpaste or on both of them.<br />
+_googleVerification_ is the key given in google search console to validate your website.<br />
 
 Once installed you can start the app with :<br />
 

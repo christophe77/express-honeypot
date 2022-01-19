@@ -1,17 +1,18 @@
 const pages = require("../pages");
 const config = require("../config");
 
-function sitemapXml() {
+function sitemapXml(host) {
   const urls = [];
   const dateMod = new Date();
-  pages.map((page) =>
-    urls.push(
+  pages.map((page) => {
+    const urlToAdd = `${host}${page.url}`;
+    return urls.push(
       `<url>
-        <loc><![CDATA[${config.HOST}${page.url}]]></loc>
+        <loc><![CDATA[${urlToAdd}]]></loc>
         <lastmod>${dateMod.toISOString().split("T")[0]}</lastmod>
       </url>`
-    )
-  );
+    );
+  });
   const structure = `<?xml version="1.0" encoding="UTF-8"?>
       <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       ${urls.join("\n")}
@@ -29,7 +30,7 @@ function indexHtml() {
         <head>
           <title>Beeeeee 🐝</title>
           <meta name="google-site-verification" content="${
-            config.GOOGLE_VERIFICATION
+            config.googleVerification
           }" />
         </head>
         <body>

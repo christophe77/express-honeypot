@@ -25,7 +25,12 @@ beekeeperRouter.get("/", (req, res) => {
     .toString()
     .split(":");
 
-  if (!(username === config.USERNAME && password === config.PASSWORD)) {
+  if (
+    !(
+      username === config.beekeeperCredentials.username &&
+      password === config.beekeeperCredentials.password
+    )
+  ) {
     return reject();
   }
   return res.sendFile(`${appDir}/views/beekeeper/index.html`);

@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
 const common = require("../common/common");
+const config = require("../../config");
 
 const today = new Date().toISOString().split("T")[0];
 const dataFilePath = path.join(__dirname, `../../hive/logs/${today}.json`);
@@ -36,6 +37,7 @@ async function downloadRemoteFile(remoteUrl) {
   }
   return { fileName: "", pathName: "" };
 }
+
 async function dpaste(content) {
   try {
     const body = `content=${encodeURIComponent(content)}&syntax=json`;
@@ -49,17 +51,25 @@ async function dpaste(content) {
     return "";
   }
 }
-async function generateLocalReport(reportDatas) {
-  const file = await downloadRemoteFile(reportDatas.fileInclusion);
+async function generateReport(reportDatas) {
   const reportDatasCopy = { ...reportDatas };
-  reportDatasCopy.file = file;
+  if (config.remoteFileSave.dpaste) {
+    const fileContent = await common.getRemoteFileContent(
+      reportDatas.fileInclusion
+    );
+    const reportUrl = await dpaste(fileContent);
+    reportDatasCopy.reportUrl = reportUrl;
+  }
+  if (config.remoteFileSave.local) {
+    const file = await downloadRemoteFile(reportDatas.fileInclusion);
+    reportDatasCopy.file = file;
+  }
+
   if (fs.existsSync(dataFilePath)) {
     fs.readFile(dataFilePath, "utf8", (err, data) => {
       if (err) throw err;
       const content = JSON.parse(data);
-      if (
-        content.datas.filter((e) => e.url === reportDatasCopy.url).length === 0
-      ) {
+      if (content.datas.filter((e) => e.url === reportDatas.url).length === 0) {
         content.datas.push(reportDatasCopy);
         writeFileAsync(content, dataFilePath);
       }
@@ -68,35 +78,8 @@ async function generateLocalReport(reportDatas) {
     writeFileAsync({ datas: [reportDatasCopy] }, dataFilePath);
   }
 }
-async function generateDPasteReport(reportDatas) {
-  const fileContent = await common.getRemoteFileContent(
-    reportDatas.fileInclusion
-  );
-  const reportDatasCopy = { ...reportDatas };
-  reportDatasCopy.fileContent = fileContent;
-  const dpasteUrl = await dpaste(JSON.stringify(reportDatasCopy));
-  const lightReportDatas = {
-    url: reportDatasCopy.url,
-    dpaste: dpasteUrl,
-  };
-  if (fs.existsSync(dataFilePath)) {
-    fs.readFile(dataFilePath, "utf8", (err, data) => {
-      if (err) throw err;
-      const content = JSON.parse(data);
-      if (
-        content.datas.filter((e) => e.url === reportDatasCopy.url).length === 0
-      ) {
-        content.datas.push(lightReportDatas);
-        writeFileAsync(content, dataFilePath);
-      }
-    });
-  } else {
-    writeFileAsync({ datas: [lightReportDatas] }, dataFilePath);
-  }
-  return dpasteUrl;
-}
+
 const reportMaker = {
-  generateLocalReport,
-  generateDPasteReport,
+  generateReport,
 };
 module.exports = reportMaker;

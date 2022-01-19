@@ -1,7 +1,6 @@
 const axios = require("axios");
 const countryFlagEmoji = require("country-flag-emoji");
 const reportMaker = require("./report/reportMaker");
-const config = require("../config");
 
 const timestamp = Date.now() / 1000 || 0;
 
@@ -43,11 +42,9 @@ async function analyseReq(req) {
       ip,
       location,
     };
-    if (config.DPASTE_REPORT) {
-      reportMaker.generateDPasteReport(reportDatas);
-    } else {
-      reportMaker.generateLocalReport(reportDatas);
-    }
+
+    reportMaker.generateReport(reportDatas);
+
     return reportDatas;
   }
   return {};
