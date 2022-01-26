@@ -76,7 +76,7 @@ function deleteLog(date) {
       }
     }
   };
-  xhr.open("GET", `./beekeeper/d/log/${date}`);
+  xhr.open("GET", `/beekeeper/d/log/${date}`);
   xhr.send();
 }
 function displayResults(results) {
