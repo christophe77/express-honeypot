@@ -1,5 +1,6 @@
 const pages = require("../pages");
 const config = require("../config");
+const beeLanguage = require("../honey/display/beeLanguage");
 
 function sitemapXml(host) {
   const urls = [];
@@ -34,8 +35,13 @@ function indexHtml() {
           }" />
         </head>
         <body>
-        <h1>tchhhhh !</h1>
-        <p>Welcome to express honeypot, the best place to learn the bee language.</p>
+        <h1>Bzzzzzzzz!</h1>
+        <p>Welcome to bee learning, the best place to learn the bee language.</p>
+        <p><a href="./beekeeper">Beekeper Access</a></p>
+        <img src="./beekeeper.jpg" alt="beekeeper" />
+        <p>
+        ${beeLanguage.generateBeeText()}
+        </p>
         <ul>
           ${urls.join("\n")}
         </ul>

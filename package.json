@@ -1,6 +1,6 @@
 {
   "name": "express-honeypot",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "server.js",
   "repository": "https://github.com/christophe77/express-honeypot",
   "author": "christophe77 <chrisb@gmx.fr>",

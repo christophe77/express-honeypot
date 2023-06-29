@@ -19,5 +19,5 @@ app.use("/hive", hiveRouter);
 app.use("/*", honeyRouter);
 
 app.listen(app.get("port"), () => {
-  // console.log("listening");
+  console.log(`listening on port ${config.port}`);
 });
