@@ -1,6 +1,6 @@
 {
   "name": "express-honeypot",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "server.js",
   "repository": "https://github.com/christophe77/express-honeypot",
   "author": "christophe77 <chrisb@gmx.fr>",
@@ -26,7 +26,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-prettier": "^4.0.0",
-    "nodemon": "^2.0.15",
+    "nodemon": "^3.1.0",
     "prettier": "^2.6.2"
   },
   "scripts": {
