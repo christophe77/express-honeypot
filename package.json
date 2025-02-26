@@ -18,7 +18,7 @@
     "axios": "^0.28.0",
     "cors": "^2.8.5",
     "country-flag-emoji": "^1.0.3",
-    "express": "^4.17.3"
+    "express": "^4.20.0"
   },
   "devDependencies": {
     "eslint": "^8.12.0",
