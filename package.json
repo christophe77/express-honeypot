@@ -15,19 +15,19 @@
     "lfi"
   ],
   "dependencies": {
-    "axios": "^0.28.0",
+    "axios": "^1.8.1",
     "cors": "^2.8.5",
     "country-flag-emoji": "^1.0.3",
-    "express": "^4.17.3"
+    "express": "^4.21.2"
   },
   "devDependencies": {
-    "eslint": "^8.12.0",
+    "eslint": "^9.21.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-prettier": "^4.0.0",
-    "nodemon": "^3.1.0",
-    "prettier": "^2.6.2"
+    "eslint-config-prettier": "^10.0.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.3",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.5.2"
   },
   "scripts": {
     "dev": "nodemon ./express/server.js",

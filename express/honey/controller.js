@@ -21,8 +21,7 @@ async function getLocation(ip) {
 }
 
 function checkFileInclusion(url) {
-  const expression =
-    /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+  const expression = /(https?:\/\/[^\s]+)/gi;
   const urlRegex = new RegExp(expression);
   const urlInjection = url.match(urlRegex) ? url.match(urlRegex)[0] : "";
   return urlInjection || "";
