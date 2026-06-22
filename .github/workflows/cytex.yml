@@ -1,0 +1,22 @@
+
+name: Cytex Scan
+on:
+  push:
+    branches:
+      - "master"
+      - "main"
+jobs:
+  analyze:
+    name: Code analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Grype
+        run: curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+      - name: Install Semgrep
+        run: python3 -m pip install semgrep
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run Grype
+        run: grype dir:./ -o json
+      - name: Run Semgrep
+        run: semgrep --config=auto ./ --json
