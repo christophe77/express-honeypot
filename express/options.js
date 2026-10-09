@@ -2,6 +2,8 @@ const crypto = require("crypto");
 const path = require("path");
 const defaultTraps = require("./pages");
 
+const MIN_PASSWORD_LENGTH = 12;
+
 const DEFAULTS = {
   // Where logs and captured payloads are stored.
   storageDir: path.join(process.cwd(), "honeypot-data"),
@@ -34,6 +36,13 @@ function resolveOptions(options = {}) {
     if (!username || !password) {
       throw new Error(
         "express-honeypot: beekeeper needs a username and a password"
+      );
+    }
+    if (String(password).length < MIN_PASSWORD_LENGTH) {
+      console.warn(
+        `express-honeypot: the beekeeper password is shorter than ` +
+          `${MIN_PASSWORD_LENGTH} characters. Failed logins are slowed down, ` +
+          `but a weak password is still a weak password.`
       );
     }
     resolved.beekeeper = { path: "/beekeeper", ...resolved.beekeeper };

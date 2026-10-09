@@ -113,6 +113,7 @@ A honeypot downloads files chosen by attackers, so it has to be careful:
 - downloads have a timeout and a size limit
 - everything shown in fake pages and in the beekeeper is escaped
 - the beekeeper and payload downloads are behind basic auth, with strict path validation
+- failed logins trigger a cooldown that doubles each time (capped at 30s, never a hard lockout, so a bot cannot lock you out of your own logs)
 - the Docker image runs as a non root user
 
 ## 🪤 Adding more traps

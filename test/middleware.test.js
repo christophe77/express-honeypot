@@ -21,7 +21,11 @@ before(async () => {
       storageDir,
       geoip: false,
       fetch: { enabled: false },
-      beekeeper: { path: "/admin/bees", username: "bee", password: "keeper" },
+      beekeeper: {
+        path: "/admin/bees",
+        username: "bee",
+        password: "correct horse battery staple",
+      },
       onHit: (report) => hits.push(report),
     })
   );
@@ -86,7 +90,7 @@ test("the beekeeper can be mounted anywhere", async () => {
   const denied = await fetch(`${base}/admin/bees/darts`);
   assert.strictEqual(denied.status, 401);
   const res = await fetch(`${base}/admin/bees/darts`, {
-    headers: { authorization: basic("bee", "keeper") },
+    headers: { authorization: basic("bee", "correct horse battery staple") },
   });
   const darts = await res.json();
   assert.ok(darts[0].datas.length >= 1);
