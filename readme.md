@@ -13,6 +13,8 @@ Use it two ways:
 - **🐳 Standalone**: a dedicated bait server, with sitemap and SEO so search engines (and bots) find it.
 - **🧩 Middleware**: `app.use(honeypot())` in your existing Express app. Trap paths catch scanners, everything else goes to your routes.
 
+Sibling project: [node-ftp-honeypot](https://github.com/christophe77/node-ftp-honeypot), the same idea for FTP bots, with bait files and honeytokens 🎣
+
 ## 🐳 Standalone with Docker
 
 ```bash
