@@ -1,62 +1,48 @@
 const fs = require("fs");
 const path = require("path");
+const { isValidDate, resolveInside } = require("../security/sanitize");
 
 const hiveLogsPath = path.join(__dirname, "../hive/logs");
 const hiveFilesPath = path.join(__dirname, "../hive/files");
 
-const generateResults = () => {
-  const darts = [];
-
-  const jsonsInDir = fs
-    .readdirSync(hiveLogsPath)
-    .filter((file) => path.extname(file) === ".json");
-
-  jsonsInDir.forEach((file) => {
-    const dart = {
-      date: path.parse(file).name,
-      datas: [],
-    };
-    const dartData = fs.readFileSync(path.join(hiveLogsPath, file));
-    const dartDataJson = JSON.parse(dartData.toString());
-    dart.datas = dartDataJson.datas;
-    darts.push(dart);
-  });
-  return darts;
-};
-
 function getDarts() {
-  const darts = generateResults();
-  return darts;
-}
-
-function deleteFolderRecursive(thePath) {
-  if (fs.existsSync(thePath)) {
-    fs.readdirSync(thePath).forEach((file) => {
-      const curPath = `${thePath}/${file}`;
-      if (fs.lstatSync(curPath).isDirectory()) {
-        deleteFolderRecursive(curPath);
-      } else {
-        fs.unlinkSync(curPath);
+  return fs
+    .readdirSync(hiveLogsPath)
+    .filter((file) => path.extname(file) === ".json")
+    .flatMap((file) => {
+      try {
+        const json = JSON.parse(fs.readFileSync(path.join(hiveLogsPath, file)));
+        return [{ date: path.parse(file).name, datas: json.datas || [] }];
+      } catch (e) {
+        // One broken file should not take the whole dashboard down.
+        return [];
       }
     });
-    fs.rmdirSync(thePath);
-  }
 }
 
 function deleteDayLog(date) {
+  if (!isValidDate(date)) return { deleted: false };
   try {
-    const logFile = path.join(hiveLogsPath, `${date}.json`);
-    const filePath = path.join(hiveFilesPath, date);
-    fs.unlinkSync(logFile);
-    deleteFolderRecursive(filePath);
+    fs.rmSync(path.join(hiveLogsPath, `${date}.json`), { force: true });
+    fs.rmSync(path.join(hiveFilesPath, date), { recursive: true, force: true });
     return { deleted: true };
   } catch (e) {
     return { deleted: false };
   }
 }
 
+// Returns the absolute path of a captured payload, or null if the request
+// smells like it is trying to read anything else. Yes, someone will try.
+function getPayloadPath(date, file) {
+  if (!isValidDate(date) || typeof file !== "string") return null;
+  if (path.basename(file) !== file || !file.endsWith(".bee")) return null;
+  const filePath = resolveInside(hiveFilesPath, date, file);
+  return filePath && fs.existsSync(filePath) ? filePath : null;
+}
+
 const beekeeperController = {
   getDarts,
   deleteDayLog,
+  getPayloadPath,
 };
 module.exports = beekeeperController;

@@ -15,7 +15,7 @@ jobs:
       - name: Install Semgrep
         run: python3 -m pip install semgrep
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Run Grype
         run: grype dir:./ -o json
       - name: Run Semgrep

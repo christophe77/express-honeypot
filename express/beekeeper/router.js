@@ -1,48 +1,38 @@
+const path = require("path");
 const express = require("express");
-const { dirname } = require("path");
-
-const appDir = dirname(require.main.filename);
 const beekeeperController = require("./controller");
-const config = require("../config");
+const { basicAuth } = require("../security/auth");
 
 const beekeeperRouter = express.Router();
 
+// Every single beekeeper route is behind auth, not just the HTML page.
+beekeeperRouter.use(basicAuth);
+
 beekeeperRouter.get("/", (req, res) => {
-  const reject = () => {
-    res.setHeader("www-authenticate", "Basic");
-    res.sendStatus(401);
-  };
-  const { authorization } = req.headers;
-
-  if (!authorization) {
-    return reject();
-  }
-
-  const [username, password] = Buffer.from(
-    authorization.replace("Basic ", ""),
-    "base64"
-  )
-    .toString()
-    .split(":");
-
-  if (
-    !(
-      username === config.beekeeperCredentials.username &&
-      password === config.beekeeperCredentials.password
-    )
-  ) {
-    return reject();
-  }
-  return res.sendFile(`${appDir}/views/beekeeper/index.html`);
+  res.sendFile(path.join(__dirname, "../views/beekeeper/index.html"));
 });
+
+beekeeperRouter.use(
+  express.static(path.join(__dirname, "../views/beekeeper"), { index: false })
+);
 
 beekeeperRouter.get("/darts", (req, res) => {
   res.send(beekeeperController.getDarts());
 });
 
-beekeeperRouter.get("/d/log/:date", (req, res) => {
-  const { date } = req.params;
-  res.send(beekeeperController.deleteDayLog(date));
+// DELETE, not GET: a link preview or a crawler should not wipe your logs.
+beekeeperRouter.delete("/logs/:date", (req, res) => {
+  const result = beekeeperController.deleteDayLog(req.params.date);
+  res.status(result.deleted ? 200 : 400).send(result);
+});
+
+beekeeperRouter.get("/files/:date/:file", (req, res) => {
+  const { date, file } = req.params;
+  const filePath = beekeeperController.getPayloadPath(date, file);
+  if (!filePath) return res.status(404).send("not found");
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  return res.download(filePath, file);
 });
 
 module.exports = beekeeperRouter;

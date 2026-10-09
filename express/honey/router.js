@@ -1,19 +1,15 @@
 const express = require("express");
 const htmlTemplate = require("./display/htmlTemplate");
 const pages = require("../pages");
-const common = require("./common/common");
 const honeyController = require("./controller");
 
 const honeyRouter = express.Router();
 
 honeyRouter.get("/*", async (req, res) => {
-  const honeyPage = pages.find((page) => req.url === page.url);
-  const reportDatas = await honeyController.analyseReq(req);
-  let fileContent;
-  if (reportDatas.fileInclusion) {
-    fileContent = await common.getRemoteFileContent(reportDatas.fileInclusion);
-  }
-  res.send(htmlTemplate(honeyPage, req.url, fileContent));
+  // req.url is relative to the "/*" mount point, originalUrl is the real one.
+  const honeyPage = pages.find((page) => req.originalUrl === page.url);
+  const { fileContent } = await honeyController.analyseReq(req);
+  res.send(htmlTemplate(honeyPage, req.originalUrl, fileContent));
 });
 
 module.exports = honeyRouter;
