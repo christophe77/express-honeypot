@@ -1,82 +1,83 @@
-const fs = require("fs");
+const crypto = require("crypto");
+const fs = require("fs/promises");
 const path = require("path");
 const axios = require("axios");
-const common = require("../common/common");
 const config = require("../../config");
+const { sanitizeFileName } = require("../../security/sanitize");
 
-const today = new Date().toISOString().split("T")[0];
-const dataFilePath = path.join(__dirname, `../../hive/logs/${today}.json`);
-const remoteFileCopyPath = path.join(__dirname, `../../hive/files/${today}/`);
+const logsPath = path.join(__dirname, "../../hive/logs");
+const filesPath = path.join(__dirname, "../../hive/files");
 
-async function writeFileAsync(jsonContent, filePath) {
-  await fs.writeFile(
-    filePath,
-    JSON.stringify(jsonContent),
-    { flag: "w" },
-    (err) => {
-      if (err) throw err;
-    }
-  );
+// The date is computed per hit now. It used to be frozen at boot, so every
+// log went into the file of the day the server started. Forever.
+const today = () => new Date().toISOString().split("T")[0];
+
+// Serialize read/modify/write of the daily log so two bots hitting at the
+// same time can't eat each other's entries or corrupt the JSON.
+let writeQueue = Promise.resolve();
+function enqueue(task) {
+  const run = writeQueue.then(task, task);
+  writeQueue = run.catch(() => {});
+  return run;
 }
 
-async function downloadRemoteFile(remoteUrl) {
-  if (remoteUrl && remoteUrl !== "") {
-    try {
-      const splittedUrl = remoteUrl.split("/");
-      const fileName = `${splittedUrl[splittedUrl.length - 1]}.bee`;
-      const fileContent = await common.getRemoteFileContent(remoteUrl);
-
-      if (!fs.existsSync(remoteFileCopyPath)) {
-        fs.mkdirSync(remoteFileCopyPath);
-      }
-      writeFileAsync(fileContent, path.join(remoteFileCopyPath, fileName));
-      return { fileName, pathName: today };
-    } catch (err) {
-      return { fileName: "", pathName: "" };
-    }
+async function saveRemoteFile(remoteUrl, fileContent, day) {
+  const hash = crypto.createHash("sha256").update(fileContent).digest("hex");
+  let remoteName = "";
+  try {
+    remoteName = new URL(remoteUrl).pathname.split("/").pop();
+  } catch (e) {
+    remoteName = "";
   }
-  return { fileName: "", pathName: "" };
+  const fileName = `${hash.slice(0, 12)}-${sanitizeFileName(remoteName)}.bee`;
+  const dir = path.join(filesPath, day);
+  await fs.mkdir(dir, { recursive: true });
+  // Raw bytes, not JSON.stringify'd soup.
+  await fs.writeFile(path.join(dir, fileName), fileContent);
+  return { fileName, pathName: day, sha256: hash };
 }
 
 async function dpaste(content) {
   try {
-    const body = `content=${encodeURIComponent(content)}&syntax=json`;
+    const body = `content=${encodeURIComponent(content)}&syntax=text`;
     const response = await axios.post("https://dpaste.com/api/", body, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      timeout: 5000,
     });
-    return response.data.replace("\n", "");
+    return String(response.data).trim();
   } catch (error) {
     return "";
   }
 }
-async function generateReport(reportDatas) {
-  const reportDatasCopy = { ...reportDatas };
-  if (config.remoteFileSave.dpaste) {
-    const fileContent = await common.getRemoteFileContent(
-      reportDatas.fileInclusion
-    );
-    const reportUrl = await dpaste(fileContent);
-    reportDatasCopy.reportUrl = reportUrl;
+
+async function appendToDailyLog(day, report) {
+  const dataFilePath = path.join(logsPath, `${day}.json`);
+  let content = { datas: [] };
+  try {
+    content = JSON.parse(await fs.readFile(dataFilePath, "utf8"));
+  } catch (err) {
+    if (err.code !== "ENOENT") throw err;
   }
-  if (config.remoteFileSave.local) {
-    const file = await downloadRemoteFile(reportDatas.fileInclusion);
-    reportDatasCopy.file = file;
+  if (content.datas.some((e) => e.url === report.url)) return;
+  content.datas.push(report);
+  const tmpPath = `${dataFilePath}.tmp`;
+  await fs.writeFile(tmpPath, JSON.stringify(content));
+  await fs.rename(tmpPath, dataFilePath);
+}
+
+async function generateReport(reportDatas, fileContent) {
+  const day = today();
+  const report = { ...reportDatas };
+  const hasPayload = typeof fileContent === "string" && fileContent !== "";
+
+  if (hasPayload && config.remoteFileSave.dpaste) {
+    report.reportUrl = await dpaste(fileContent);
+  }
+  if (hasPayload && config.remoteFileSave.local) {
+    report.file = await saveRemoteFile(report.fileInclusion, fileContent, day);
   }
 
-  if (fs.existsSync(dataFilePath)) {
-    fs.readFile(dataFilePath, "utf8", (err, data) => {
-      if (err) throw err;
-      const content = JSON.parse(data);
-      if (content.datas.filter((e) => e.url === reportDatas.url).length === 0) {
-        content.datas.push(reportDatasCopy);
-        writeFileAsync(content, dataFilePath);
-      }
-    });
-  } else {
-    writeFileAsync({ datas: [reportDatasCopy] }, dataFilePath);
-  }
+  await enqueue(() => appendToDailyLog(day, report));
 }
 
 const reportMaker = {

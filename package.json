@@ -21,17 +21,21 @@
     "express": "^4.21.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "eslint": "^9.21.0",
-    "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.0.2",
-    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.3",
+    "globals": "^17.13.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.5.2"
   },
   "scripts": {
     "dev": "nodemon ./express/server.js",
     "start": "node ./express/server.js",
-    "lint": "eslint . --ext .js --fix"
+    "lint": "eslint .",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

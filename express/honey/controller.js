@@ -1,54 +1,72 @@
+const crypto = require("crypto");
 const axios = require("axios");
 const countryFlagEmoji = require("country-flag-emoji");
 const reportMaker = require("./report/reportMaker");
-
-const timestamp = Date.now() / 1000 || 0;
+const { fetchRemoteFile } = require("../security/safeFetch");
 
 async function getLocation(ip) {
-  const url = `http://ip-api.com/json/${ip}`;
   const location = { city: "", country: "", countryEmoji: "", isp: "" };
+  if (!ip) return location;
   try {
-    const response = await axios.get(url);
+    const url = `http://ip-api.com/json/${encodeURIComponent(ip)}`;
+    const response = await axios.get(url, { timeout: 3000 });
     const countryEmoji = countryFlagEmoji.get(response.data.countryCode);
-    location.city = response.data.city;
-    location.country = response.data.country;
-    location.countryEmoji = countryEmoji.emoji;
-    location.isp = response.data.isp;
+    location.city = response.data.city || "";
+    location.country = response.data.country || "";
+    location.countryEmoji = (countryEmoji && countryEmoji.emoji) || "";
+    location.isp = response.data.isp || "";
     return location;
   } catch (err) {
     return location;
   }
 }
 
+function safeDecode(url) {
+  try {
+    return decodeURIComponent(url);
+  } catch (e) {
+    return url;
+  }
+}
+
 function checkFileInclusion(url) {
-  const expression = /(https?:\/\/[^\s]+)/gi;
-  const urlRegex = new RegExp(expression);
-  const urlInjection = url.match(urlRegex) ? url.match(urlRegex)[0] : "";
-  return urlInjection || "";
+  // Bots love to url encode their payload, so look at the decoded url too.
+  const match = safeDecode(url).match(/https?:\/\/[^\s"'<>]+/i);
+  return match ? match[0] : "";
 }
 
 async function analyseReq(req) {
-  if (req.url.includes("http") || req.url.includes("www")) {
-    const { url, headers, ip } = req;
-    const fileInclusion = checkFileInclusion(url);
+  const { originalUrl: url, headers, ip } = req;
+  const decodedUrl = safeDecode(url);
+  if (!decodedUrl.includes("http") && !decodedUrl.includes("www")) return {};
+  const fileInclusion = checkFileInclusion(url);
 
-    const location = await getLocation(ip);
-    const reportDatas = {
-      id: timestamp,
-      url,
-      fileInclusion,
-      headers,
-      ip,
-      location,
-    };
+  // One fetch per hit. The payload used to be downloaded up to three times.
+  const [location, fileContent] = await Promise.all([
+    getLocation(ip),
+    fileInclusion ? fetchRemoteFile(fileInclusion) : null,
+  ]);
 
-    reportMaker.generateReport(reportDatas);
+  const reportDatas = {
+    id: `${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
+    date: new Date().toISOString(),
+    url,
+    fileInclusion,
+    headers,
+    ip,
+    location,
+  };
 
-    return reportDatas;
-  }
-  return {};
+  // Logging must never break the fake page.
+  reportMaker
+    .generateReport(reportDatas, fileContent)
+    .catch((err) => console.error("report failed:", err.message));
+
+  return { ...reportDatas, fileContent };
 }
+
 const honeyController = {
   analyseReq,
+  checkFileInclusion,
 };
 module.exports = honeyController;

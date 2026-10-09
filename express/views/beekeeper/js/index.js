@@ -1,122 +1,103 @@
+// Every value displayed here was written by a bot. Treat it accordingly.
+function esc(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+// Only real http(s) links become clickable, no javascript: surprises.
+function safeLink(url) {
+  if (!/^https?:\/\//i.test(String(url || ""))) return esc(url);
+  return `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(url)}</a>`;
+}
 function collapsible() {
   const elems = document.querySelectorAll(".collapsible");
   M.Collapsible.init(elems, { accordion: false });
 }
 function listHeaders(headers) {
   let list = "";
-  for (const [key, value] of Object.entries(headers)) {
-    list += `<li><b>${key}:</b> ${value}</li>`;
+  for (const [key, value] of Object.entries(headers || {})) {
+    list += `<li><b>${esc(key)}:</b> ${esc(value)}</li>`;
   }
   return list;
 }
-function displayDetails(details) {
-  const getDetailsElm = document.getElementById(`details-${details.date}`);
+function payloadLink(file) {
+  if (!file || !file.fileName) return "none";
+  const href = `/beekeeper/files/${encodeURIComponent(
+    file.pathName
+  )}/${encodeURIComponent(file.fileName)}`;
+  const hash = file.sha256 ? ` <small>sha256 ${esc(file.sha256)}</small>` : "";
+  return `<a href="${esc(href)}">${esc(file.fileName)}</a>${hash}`;
+}
+function displayDetails(details, container) {
   let html = "";
   details.datas.forEach((detail) => {
-    let result = "";
-    if (detail.dpaste) {
-      result = `
-      <li>
-        <div style="padding:5px;">
-          <b>Request url : </b><span>${detail.url}</span><br/>
-        </div>
-      </li>`;
-    } else {
-      result = `
+    const location = detail.location || {};
+    html += `
       <li>
         <div class="collapsible-header">
           <i class="material-icons">offline_bolt</i>
-            ${detail.fileInclusion}
+            ${esc(detail.fileInclusion || detail.url)}
         </div>
         <div class="collapsible-body" style="word-wrap: break-word;">
           <b>Request IP : </b><br/>
-          <ul style=" padding-left : 10px; 
-                      padding-right : 10px;">
-              <li>${detail.ip} ${detail.location.isp || ""}</li>
-              <li>${detail.location.countryEmoji || ""}
-                  ${detail.location.country || ""} 
-                  - ${detail.location.city || ""}</li>
+          <ul style="padding-left: 10px; padding-right: 10px;">
+              <li>${esc(detail.ip)} ${esc(location.isp)}</li>
+              <li>${esc(location.countryEmoji)}
+                  ${esc(location.country)}
+                  - ${esc(location.city)}</li>
           </ul>
-          <b>Request url : </b><span>${detail.url}</span><br/>
-          <b>Remote url : </b>
-            <a href="${detail.fileInclusion}" target="_blank">
-              ${detail.fileInclusion}
-            </a><br/>
-            <b>Dpaste save url : </b><a href="${
-              detail.reportUrl
-            }" target="_blank">${detail.reportUrl}</a><br/>
-            <b>Inclusion file : </b>
-            <a href="../hive/?file=${detail.file.fileName}&path=${
-        detail.file.pathName
-      }" target="_blank">
-              ${detail.file.fileName}
-            </a><br/>
+          <b>Request url : </b><span>${esc(detail.url)}</span><br/>
+          <b>Remote url : </b>${safeLink(detail.fileInclusion)}<br/>
+          <b>Dpaste save url : </b>${safeLink(detail.reportUrl)}<br/>
+          <b>Inclusion file : </b>${payloadLink(detail.file)}<br/>
           <b>Request headers:</b><br/>
-          <ul style=" padding-left : 10px; 
-                      padding-right : 10px;">
+          <ul style="padding-left: 10px; padding-right: 10px;">
             ${listHeaders(detail.headers)}
           </ul>
         </div>
       </li>`;
-    }
-
-    html += result;
   });
-  getDetailsElm.innerHTML = html;
-  collapsible();
+  container.innerHTML = html;
 }
-function deleteLog(date) {
-  const xhr = new XMLHttpRequest();
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState !== 4) return;
-    if (xhr.status >= 200 && xhr.status < 300) {
-      const results = JSON.parse(xhr.responseText);
-      if (results.deleted === true) {
-        getDatas();
-      }
-    }
-  };
-  xhr.open("GET", `/beekeeper/d/log/${date}`);
-  xhr.send();
+async function deleteLog(date) {
+  if (!window.confirm(`Delete all logs and payloads for ${date}?`)) return;
+  const response = await fetch(`/beekeeper/logs/${encodeURIComponent(date)}`, {
+    method: "DELETE",
+  });
+  if (response.ok) getDatas();
 }
 function displayResults(results) {
-  const getResultsElm = document.getElementById("results");
-  let html = "";
+  const resultsElm = document.getElementById("results");
+  resultsElm.innerHTML = "";
   results.forEach((darts) => {
-    const result = ` 
-        <li>
-          <div class="collapsible-header" style="display: block;">
-            <i class="material-icons">keyboard_arrow_down</i>
-            ${darts.date}
-            <div class="right">
-              <i class="material-icons" onclick="deleteLog('${darts.date}')">delete</i>
-            </div>
-          </div> 
-          <div class="collapsible-body">
-            <ul class="collapsible" id="details-${darts.date}">
-            </ul>
-          </div>
-        </li>
-      `;
-    html += result;
+    const item = document.createElement("li");
+    item.innerHTML = `
+      <div class="collapsible-header" style="display: block;">
+        <i class="material-icons">keyboard_arrow_down</i>
+        ${esc(darts.date)}
+        <div class="right">
+          <i class="material-icons delete-log">delete</i>
+        </div>
+      </div>
+      <div class="collapsible-body">
+        <ul class="collapsible"></ul>
+      </div>`;
+    item.querySelector(".delete-log").addEventListener("click", (event) => {
+      event.stopPropagation();
+      deleteLog(darts.date);
+    });
+    displayDetails(darts, item.querySelector("ul.collapsible"));
+    resultsElm.appendChild(item);
   });
-  getResultsElm.innerHTML = html;
-  results.forEach((result) => {
-    displayDetails(result);
-  });
+  collapsible();
 }
 
-function getDatas() {
-  const xhr = new XMLHttpRequest();
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState !== 4) return;
-    if (xhr.status >= 200 && xhr.status < 300) {
-      const results = JSON.parse(xhr.responseText);
-      displayResults(results);
-    }
-  };
-  xhr.open("GET", "/beekeeper/darts");
-  xhr.send();
+async function getDatas() {
+  const response = await fetch("/beekeeper/darts");
+  if (response.ok) displayResults(await response.json());
 }
 
 document.addEventListener("DOMContentLoaded", () => {
