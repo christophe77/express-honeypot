@@ -14,13 +14,13 @@ const { listen, tempDir, basic } = require("./helpers");
 let server;
 let base;
 const storageDir = tempDir();
-const auth = basic("bee", "keeper");
+const auth = basic("bee", "correct horse battery staple");
 
 before(async () => {
   const app = createApp({
     storageDir,
     geoip: false,
-    beekeeper: { username: "bee", password: "keeper" },
+    beekeeper: { username: "bee", password: "correct horse battery staple" },
   });
   ({ server, base } = await listen(app));
   const filesDir = path.join(storageDir, "files/2000-01-01");
