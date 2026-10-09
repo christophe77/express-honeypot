@@ -1,27 +1,29 @@
-process.env.BEEKEEPER_USERNAME = "bee";
-process.env.BEEKEEPER_PASSWORD = "keeper";
-
 const { test, before, after } = require("node:test");
 const assert = require("node:assert");
 const fs = require("fs");
 const path = require("path");
-const app = require("../express/server");
+const { createApp } = require("../express");
 const {
   isBlockedAddress,
   parseRemoteUrl,
 } = require("../express/security/safeFetch");
 const { checkFileInclusion } = require("../express/honey/controller");
 const htmlTemplate = require("../express/honey/display/htmlTemplate");
+const { listen, tempDir, basic } = require("./helpers");
 
 let server;
 let base;
-const auth = `Basic ${Buffer.from("bee:keeper").toString("base64")}`;
-const filesDir = path.join(__dirname, "../express/hive/files/2000-01-01");
+const storageDir = tempDir();
+const auth = basic("bee", "keeper");
 
 before(async () => {
-  server = app.listen(0);
-  await new Promise((resolve) => server.once("listening", resolve));
-  base = `http://127.0.0.1:${server.address().port}`;
+  const app = createApp({
+    storageDir,
+    geoip: false,
+    beekeeper: { username: "bee", password: "keeper" },
+  });
+  ({ server, base } = await listen(app));
+  const filesDir = path.join(storageDir, "files/2000-01-01");
   fs.mkdirSync(filesDir, { recursive: true });
   fs.writeFileSync(
     path.join(filesDir, "abc-shell.txt.bee"),
@@ -31,7 +33,7 @@ before(async () => {
 
 after(() => {
   server.close();
-  fs.rmSync(filesDir, { recursive: true, force: true });
+  fs.rmSync(storageDir, { recursive: true, force: true });
 });
 
 test("beekeeper data routes require auth", async () => {
@@ -50,17 +52,29 @@ test("beekeeper data routes require auth", async () => {
 });
 
 test("wrong credentials are rejected", async () => {
-  const bad = `Basic ${Buffer.from("bee:honey").toString("base64")}`;
   const res = await fetch(`${base}/beekeeper/darts`, {
-    headers: { authorization: bad },
+    headers: { authorization: basic("bee", "honey") },
   });
   assert.strictEqual(res.status, 401);
 });
 
+test("beekeeper redirects to a trailing slash and serves the dashboard", async () => {
+  const res = await fetch(`${base}/beekeeper`, {
+    headers: { authorization: auth },
+    redirect: "manual",
+  });
+  assert.strictEqual(res.status, 302);
+  assert.strictEqual(res.headers.get("location"), "/beekeeper/");
+  const page = await fetch(`${base}/beekeeper/`, {
+    headers: { authorization: auth },
+  });
+  assert.match(await page.text(), /src="js\/index.js"/);
+});
+
 test("old public routes are gone", async () => {
-  const res = await fetch(`${base}/hive/x?path=..&file=../config.js`);
+  const res = await fetch(`${base}/hive/x?path=..&file=../options.js`);
   const body = await res.text();
-  assert.ok(!body.includes("beekeeperCredentials"));
+  assert.ok(!body.includes("BEEKEEPER_PASSWORD"));
   const del = await fetch(`${base}/beekeeper/d/log/..`);
   assert.strictEqual(del.status, 401);
 });
@@ -68,17 +82,15 @@ test("old public routes are gone", async () => {
 test("payload download works and refuses traversal", async () => {
   const ok = await fetch(
     `${base}/beekeeper/files/2000-01-01/abc-shell.txt.bee`,
-    {
-      headers: { authorization: auth },
-    }
+    { headers: { authorization: auth } }
   );
   assert.strictEqual(ok.status, 200);
   assert.strictEqual(await ok.text(), "<?php evil(); ?>");
 
   for (const url of [
-    "/beekeeper/files/2000-01-01/..%2F..%2F..%2Fconfig.js",
+    "/beekeeper/files/2000-01-01/..%2F..%2F..%2Fpackage.json",
     "/beekeeper/files/..%2F..%2Fhoney/controller.js",
-    "/beekeeper/files/2000-01-01/..%5C..%5Cconfig.js",
+    "/beekeeper/files/2000-01-01/..%5C..%5Cpackage.json",
   ]) {
     const res = await fetch(base + url, { headers: { authorization: auth } });
     assert.notStrictEqual(res.status, 200, url);
@@ -91,6 +103,11 @@ test("delete refuses anything that is not a date", async () => {
     headers: { authorization: auth },
   });
   assert.strictEqual(res.status, 400);
+});
+
+test("sitemap urls are absolute", async () => {
+  const res = await fetch(`${base}/sitemap.xml`);
+  assert.match(await res.text(), /<loc><!\[CDATA\[http:\/\/127\.0\.0\.1:/);
 });
 
 test("private and metadata addresses are blocked", () => {

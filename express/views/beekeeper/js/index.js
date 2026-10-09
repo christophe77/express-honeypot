@@ -25,7 +25,7 @@ function listHeaders(headers) {
 }
 function payloadLink(file) {
   if (!file || !file.fileName) return "none";
-  const href = `/beekeeper/files/${encodeURIComponent(
+  const href = `files/${encodeURIComponent(
     file.pathName
   )}/${encodeURIComponent(file.fileName)}`;
   const hash = file.sha256 ? ` <small>sha256 ${esc(file.sha256)}</small>` : "";
@@ -64,7 +64,7 @@ function displayDetails(details, container) {
 }
 async function deleteLog(date) {
   if (!window.confirm(`Delete all logs and payloads for ${date}?`)) return;
-  const response = await fetch(`/beekeeper/logs/${encodeURIComponent(date)}`, {
+  const response = await fetch(`logs/${encodeURIComponent(date)}`, {
     method: "DELETE",
   });
   if (response.ok) getDatas();
@@ -96,7 +96,7 @@ function displayResults(results) {
 }
 
 async function getDatas() {
-  const response = await fetch("/beekeeper/darts");
+  const response = await fetch("darts");
   if (response.ok) displayResults(await response.json());
 }
 

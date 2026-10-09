@@ -1,38 +1,48 @@
 const path = require("path");
 const express = require("express");
-const beekeeperController = require("./controller");
+const { createBeekeeperStore } = require("./controller");
 const { basicAuth } = require("../security/auth");
 
-const beekeeperRouter = express.Router();
+const viewsPath = path.join(__dirname, "../views/beekeeper");
 
-// Every single beekeeper route is behind auth, not just the HTML page.
-beekeeperRouter.use(basicAuth);
+function createBeekeeperRouter({ storageDir, username, password }) {
+  const store = createBeekeeperStore(storageDir);
+  const router = express.Router();
 
-beekeeperRouter.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../views/beekeeper/index.html"));
-});
+  // Every single beekeeper route is behind auth, not just the HTML page.
+  router.use(basicAuth({ username, password }));
 
-beekeeperRouter.use(
-  express.static(path.join(__dirname, "../views/beekeeper"), { index: false })
-);
+  router.get("/", (req, res) => {
+    // The dashboard uses relative urls, so it needs the trailing slash
+    // to work wherever it is mounted.
+    const [pathname, query] = req.originalUrl.split("?");
+    if (!pathname.endsWith("/")) {
+      return res.redirect(`${pathname}/${query ? `?${query}` : ""}`);
+    }
+    return res.sendFile(path.join(viewsPath, "index.html"));
+  });
 
-beekeeperRouter.get("/darts", (req, res) => {
-  res.send(beekeeperController.getDarts());
-});
+  router.use(express.static(viewsPath, { index: false }));
 
-// DELETE, not GET: a link preview or a crawler should not wipe your logs.
-beekeeperRouter.delete("/logs/:date", (req, res) => {
-  const result = beekeeperController.deleteDayLog(req.params.date);
-  res.status(result.deleted ? 200 : 400).send(result);
-});
+  router.get("/darts", (req, res) => {
+    res.send(store.getDarts());
+  });
 
-beekeeperRouter.get("/files/:date/:file", (req, res) => {
-  const { date, file } = req.params;
-  const filePath = beekeeperController.getPayloadPath(date, file);
-  if (!filePath) return res.status(404).send("not found");
-  res.setHeader("Content-Type", "text/plain; charset=utf-8");
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  return res.download(filePath, file);
-});
+  // DELETE, not GET: a link preview or a crawler should not wipe your logs.
+  router.delete("/logs/:date", (req, res) => {
+    const result = store.deleteDayLog(req.params.date);
+    res.status(result.deleted ? 200 : 400).send(result);
+  });
 
-module.exports = beekeeperRouter;
+  router.get("/files/:date/:file", (req, res) => {
+    const { date, file } = req.params;
+    const filePath = store.getPayloadPath(date, file);
+    if (!filePath) return res.status(404).send("not found");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    return res.download(filePath, file);
+  });
+
+  return router;
+}
+
+module.exports = { createBeekeeperRouter };
