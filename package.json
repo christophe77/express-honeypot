@@ -1,7 +1,7 @@
 {
   "name": "express-honeypot",
-  "version": "1.0.3",
-  "main": "server.js",
+  "version": "2.0.0",
+  "main": "express/index.js",
   "repository": "https://github.com/christophe77/express-honeypot",
   "author": "christophe77 <chrisb@gmx.fr>",
   "license": "MIT",
@@ -12,11 +12,13 @@
     "remote file inclusion",
     "local file inclusion",
     "rfi",
-    "lfi"
+    "lfi",
+    "middleware",
+    "security",
+    "threat-intelligence"
   ],
   "dependencies": {
     "axios": "^1.8.1",
-    "cors": "^2.8.5",
     "country-flag-emoji": "^1.0.3",
     "express": "^4.21.2"
   },
@@ -37,5 +39,10 @@
   },
   "engines": {
     "node": ">=18"
-  }
+  },
+  "files": [
+    "express/",
+    "!express/hive/**"
+  ],
+  "description": "Drop-in honeypot for Express: fake vulnerable RFI/LFI pages that log bots and safely capture their payloads"
 }

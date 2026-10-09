@@ -1,0 +1,25 @@
+services:
+  honeypot:
+    image: ghcr.io/christophe77/express-honeypot:latest
+    build: .
+    restart: unless-stopped
+    ports:
+      - "80:3001"
+    environment:
+      BEEKEEPER_USERNAME: beekeeper
+      # Set your own, or leave it empty and read the generated one in the logs.
+      BEEKEEPER_PASSWORD: ""
+      # GOOGLE_VERIFICATION: your-search-console-key
+      # TRUST_PROXY: "1"   # only behind a reverse proxy you control
+    volumes:
+      - hive:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  hive:

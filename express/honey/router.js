@@ -1,15 +1,29 @@
-const express = require("express");
 const htmlTemplate = require("./display/htmlTemplate");
-const pages = require("../pages");
-const honeyController = require("./controller");
 
-const honeyRouter = express.Router();
+const pathOf = (url) => url.split("?")[0];
 
-honeyRouter.get("/*", async (req, res) => {
-  // req.url is relative to the "/*" mount point, originalUrl is the real one.
-  const honeyPage = pages.find((page) => req.originalUrl === page.url);
-  const { fileContent } = await honeyController.analyseReq(req);
-  res.send(htmlTemplate(honeyPage, req.originalUrl, fileContent));
-});
+function createHoneyMiddleware(options, analyseReq) {
+  const exact = new Map();
+  const byPath = new Map();
+  options.traps.forEach((trap) => {
+    exact.set(trap.url, trap);
+    if (!byPath.has(pathOf(trap.url))) byPath.set(pathOf(trap.url), trap);
+  });
 
-module.exports = honeyRouter;
+  return async function honeyMiddleware(req, res, next) {
+    if (req.method !== "GET" && req.method !== "HEAD") return next();
+    // originalUrl, not url: url is relative to wherever we are mounted.
+    const url = req.originalUrl;
+    const trap = exact.get(url) || byPath.get(pathOf(url));
+    if (!trap && !options.catchAll) return next();
+
+    try {
+      const { fileContent } = await analyseReq(req, trap);
+      return res.send(htmlTemplate(trap, url, fileContent));
+    } catch (err) {
+      return next(err);
+    }
+  };
+}
+
+module.exports = { createHoneyMiddleware };

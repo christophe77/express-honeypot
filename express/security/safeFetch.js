@@ -3,7 +3,6 @@ const http = require("http");
 const https = require("https");
 const net = require("net");
 const axios = require("axios");
-const config = require("../config");
 
 // Everything a bot should never be able to make us call: loopback, private
 // networks, link local (hello cloud metadata at 169.254.169.254), CGNAT,
@@ -85,7 +84,10 @@ function parseRemoteUrl(remoteUrl) {
 
 // Fetch a payload an attacker pointed us at, as safely as we reasonably can:
 // public hosts only, no redirects, small timeout, size cap, raw text only.
-async function fetchRemoteFile(remoteUrl) {
+async function fetchRemoteFile(
+  remoteUrl,
+  { timeoutMs = 5000, maxBytes = 1024 * 1024 } = {}
+) {
   const url = parseRemoteUrl(remoteUrl);
   if (!url) return null;
   try {
@@ -94,9 +96,9 @@ async function fetchRemoteFile(remoteUrl) {
       httpsAgent,
       proxy: false,
       maxRedirects: 0,
-      timeout: config.remoteFetch.timeoutMs,
-      maxContentLength: config.remoteFetch.maxBytes,
-      maxBodyLength: config.remoteFetch.maxBytes,
+      timeout: timeoutMs,
+      maxContentLength: maxBytes,
+      maxBodyLength: maxBytes,
       responseType: "text",
       transformResponse: [(data) => data],
       headers: { "User-Agent": "Mozilla/5.0 (compatible; bee/1.0)" },

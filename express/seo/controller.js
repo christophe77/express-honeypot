@@ -1,43 +1,48 @@
-const pages = require("../pages");
-const config = require("../config");
 const beeLanguage = require("../honey/display/beeLanguage");
+const { escapeHtml } = require("../security/sanitize");
 
-function sitemapXml(host) {
-  const urls = [];
-  const dateMod = new Date();
-  pages.map((page) => {
-    const urlToAdd = `${host}${page.url}`;
-    return urls.push(
-      `<url>
-        <loc><![CDATA[${urlToAdd}]]></loc>
-        <lastmod>${dateMod.toISOString().split("T")[0]}</lastmod>
+function sitemapXml(traps, baseUrl) {
+  const lastmod = new Date().toISOString().split("T")[0];
+  const urls = traps.map(
+    (trap) => `<url>
+        <loc><![CDATA[${baseUrl}${trap.url}]]></loc>
+        <lastmod>${lastmod}</lastmod>
       </url>`
-    );
-  });
-  const structure = `<?xml version="1.0" encoding="UTF-8"?>
+  );
+  return `<?xml version="1.0" encoding="UTF-8"?>
       <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       ${urls.join("\n")}
       </urlset>
       `;
-  return structure;
 }
-function indexHtml() {
+
+function indexHtml({ traps, googleVerification, beekeeperPath }) {
   const urls = ['<li><a href="sitemap.xml">sitemap</a></li>'];
-  pages.map((page) =>
-    urls.push(`<li><a href="${page.url}">${page.metas.title}</a></li>`)
+  traps.forEach((trap) =>
+    urls.push(
+      `<li><a href="${escapeHtml(trap.url)}">${escapeHtml(
+        trap.metas.title
+      )}</a></li>`
+    )
   );
-  const structure = `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+  const verification = googleVerification
+    ? `<meta name="google-site-verification" content="${escapeHtml(
+        googleVerification
+      )}" />`
+    : "";
+  const beekeeperLink = beekeeperPath
+    ? `<p><a href="${escapeHtml(beekeeperPath)}">Beekeper Access</a></p>`
+    : "";
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
     <html>
         <head>
           <title>Beeeeee 🐝</title>
-          <meta name="google-site-verification" content="${
-            config.googleVerification
-          }" />
+          ${verification}
         </head>
         <body>
         <h1>Bzzzzzzzz!</h1>
         <p>Welcome to bee learning, the best place to learn the bee language.</p>
-        <p><a href="./beekeeper">Beekeper Access</a></p>
+        ${beekeeperLink}
         <img src="./beekeeper.jpg" alt="beekeeper" />
         <p>
         ${beeLanguage.generateBeeText()}
@@ -47,11 +52,6 @@ function indexHtml() {
         </ul>
       </body>
     </html>`;
-  return structure;
 }
 
-const seoController = {
-  sitemapXml,
-  indexHtml,
-};
-module.exports = seoController;
+module.exports = { sitemapXml, indexHtml };
